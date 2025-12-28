@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>F1 2025 – Duel Ferrari | Raphaël vs Moïse</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --f1-red:#E10600;
+      --bg:#0B0B10;
+      --bg2:#15151E;
+      --card:#1F1F2B;
+      --border:#38383F;
+      --white:#FFFFFF;
+      --muted:#949498;
+
+      --gold:#D4AF37;
+      --silver:#C0C0C0;
+      --bronze:#CD7F32;
+
+      --shadow: 0 20px 50px rgba(0,0,0,0.45);
+      --radius: 14px;
+
+      /* Accent dynamique GP (mis à jour par JS) */
+      --gp-accent: rgba(225,6,0,1);
+      --gp-accent-soft: rgba(225,6,0,0.20);
+      --gp-accent-border: rgba(225,6,0,0.45);
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; font-family:'Titillium Web',sans-serif; }
+    body{
+      background:
+        radial-gradient(1200px 700px at 70% 20%, rgba(225,6,0,0.18), transparent 55%),
+        radial-gradient(900px 600px at 20% 80%, rgba(255,255,255,0.06), transparent 55%),
+        var(--bg);
+      color:var(--white);
+      min-height:100vh;
+    }
+
+    header{
+      background:#000;
+      padding: 18px 32px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom: 1px solid var(--border);
+      position:sticky;
+      top:0;
+      z-index:100;
+    }
+    .logo{
+      display:flex; align-items:baseline; gap:10px;
+      font-weight:900; letter-spacing:2px; text-transform:uppercase;
+      font-size:1.1rem;
+    }
+    .logo .sub{ font-weight:300; color:var(--muted); letter-spacing:1px; }
+
+    .nav-links{ display:flex; gap:24px; flex-wrap:wrap; }
+    .nav-item{
+      cursor:pointer;
+      font-weight:800;
+      text-transform:uppercase;
+      font-size:0.85rem;
+      color:var(--muted);
+      transition: transform .18s ease, color .25s ease;
+      padding-bottom:6px;
+      user-select:none;
+    }
+    .nav-item:hover{ transform: scale(1.06); color:var(--white); }
+    .nav-item.active{ color:var(--white); border-bottom:2px solid var(--f1-red); }
+
+    .filter-bar{
+      background:#000;
+      padding: 12px 32px;
+      display:flex;
+      gap:18px;
+      align-items:end;
+      border-bottom:1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .filter-group{ display:flex; flex-direction:column; gap:6px; }
+    .filter-group label{
+      font-size:0.68rem;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:1px;
+    }
+    select{
+      background:var(--card);
+      color:var(--white);
+      border:1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size:0.92rem;
+      outline:none;
+      transition: transform .18s ease, border-color .2s ease;
+    }
+    select:hover{ transform: scale(1.02); border-color: rgba(225,6,0,0.7); }
+
+    .btn{
+      background: var(--f1-red);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .18s ease, filter .2s ease;
+      box-shadow: 0 12px 30px rgba(225,6,0,0.22);
+      letter-spacing: .6px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: scale(1.05); filter: brightness(1.06); }
+    .btn.secondary{
+      background: rgba(255,255,255,0.06);
+      box-shadow:none;
+      border:1px solid var(--border);
+    }
+    .btn.secondary:hover{ transform: scale(1.04); }
+
+    main{
+      padding: 28px 32px 44px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section{ display:none; }
+    .section.active{ display:block; animation: fadeIn .35s ease; }
+    @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px);} to{opacity:1; transform: translateY(0);} }
+
+    .title-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:16px;
+      margin: 10px 0 18px;
+      flex-wrap: wrap;
+    }
+    h2{
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 900;
+    }
+    .subtitle{ color:var(--muted); font-size:.9rem; margin-top:6px; }
+
+    .ea-table{
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .ea-row{
+      display:grid;
+      grid-template-columns: 90px 1.8fr 120px 160px 160px;
+      align-items:center;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.35);
+    }
+    .ea-row:last-child{ border-bottom:none; }
+
+    .ea-header{
+      background:#000;
+      color:var(--muted);
+      font-size:0.75rem;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      padding-top: 14px;
+      padding-bottom: 14px;
+    }
+
+    .ea-data{
+      transition: transform .16s ease, background .2s ease;
+      position:relative;
+    }
+    .ea-data:hover{
+      transform: scale(1.01);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .rank{
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-align:center;
+    }
+
+    .pilot-cell{
+      display:flex; align-items:center; gap:14px;
+      min-width:0;
+    }
+
+    .portrait{
+      width: 52px; height: 52px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(225,6,0,0.25), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.08);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900;
+      overflow:hidden;
+      flex: 0 0 auto;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      position:relative;
+    }
+    .portrait img{
+      width:100%; height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.05) contrast(1.02);
+    }
+    .portrait .fallback{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 1.05rem;
+      letter-spacing: .5px;
+    }
+
+    .pilot-name{
+      font-weight:900;
+      font-size: 1.05rem;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .pilot-meta{
+      display:flex; align-items:center; gap:10px;
+      margin-top:2px;
+      color:var(--muted);
+      font-size:0.85rem;
+    }
+
+    .nat{
+      display:flex; align-items:center; justify-content:center;
+    }
+    .nat img{
+      width: 54px; height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.25);
+    }
+
+    .team{
+      display:flex; align-items:center; gap:10px;
+      justify-content:center;
+      color:rgba(255,255,255,0.9);
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-size:0.8rem;
+    }
+    .team-logo{
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .team-logo img{
+      display: block;
+      max-width: 78%;
+      max-height: 78%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      margin: 0 auto;
+      vertical-align: middle;
+    }
+    .team-logo .abbr{
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.9);
+      font-size: .85rem;
+    }
+
+    .sf-badge{
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(225,6,0,1), rgba(170,4,0,1));
+      border: 1px solid rgba(255,255,255,0.18);
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 900;
+      font-size: 0.72rem;
+      letter-spacing: .5px;
+      box-shadow: 0 10px 18px rgba(225,6,0,0.22);
+    }
+
+    .points{
+      display:flex; justify-content:center;
+      position:relative;
+    }
+    .points-box{
+      width: 120px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 12px 0;
+      text-align:center;
+      font-size:1.2rem;
+      font-weight:900;
+      border-radius: 12px;
+      transition: transform .16s ease, border-color .2s ease, background .2s ease;
+      user-select:none;
+      cursor: default;
+    }
+    .points-box:hover{
+      transform: scale(1.05);
+      border-color: rgba(225,6,0,0.65);
+      background: rgba(225,6,0,0.10);
+    }
+
+    .podium-1{ border-left: 4px solid var(--gold); }
+    .podium-2{ border-left: 4px solid var(--silver); }
+    .podium-3{ border-left: 4px solid var(--bronze); }
+
+    .medal{
+      font-size: 1rem;
+      margin-left: 8px;
+      opacity: 0.95;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.35));
+    }
+    .podium-animate{
+      animation: podiumPop .55s ease both;
+    }
+    @keyframes podiumPop{
+      0%{ transform: translateY(10px) scale(0.98); opacity:0; }
+      100%{ transform: translateY(0) scale(1); opacity:1; }
+    }
+
+    /* Tooltip */
+    .tooltip{
+      position: fixed;
+      z-index: 2000;
+      width: 360px;
+      max-width: calc(100vw - 24px);
+      background: rgba(15,15,22,0.98);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      box-shadow: 0 22px 70px rgba(0,0,0,0.55);
+      backdrop-filter: blur(10px);
+      display:none;
+    }
+    .tooltip .tt-title{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .tooltip .tt-title strong{
+      font-size: .95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .tooltip .tt-total{
+      font-weight: 900;
+      color: var(--white);
+      background: rgba(225,6,0,0.12);
+      border: 1px solid rgba(225,6,0,0.25);
+      border-radius: 10px;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+    .tooltip .tt-list{
+      max-height: 240px;
+      overflow:auto;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 10px;
+    }
+    .tooltip .tt-item{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      gap:10px;
+    }
+    .tooltip .tt-item:last-child{ border-bottom:none; }
+    .tooltip .gpname{
+      color: rgba(255,255,255,0.92);
+      font-weight: 700;
+      font-size: .9rem;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      max-width: 230px;
+    }
+    .tooltip .gpmeta{
+      color: var(--muted);
+      font-size: .82rem;
+      white-space:nowrap;
+      display:flex; gap:8px; align-items:center;
+    }
+    .chip{
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-weight: 900;
+      font-size: .75rem;
+    }
+
+    /* Modal */
+    .modal{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(12px);
+      z-index: 3000;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+    .modal-content{
+      width: 860px;
+      max-width: 100%;
+      max-height: 92vh;
+      overflow: auto;
+      background: rgba(31,31,43,0.98);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.60);
+      padding: 22px 22px 18px;
+    }
+    .modal-title{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:12px;
+      margin-bottom: 14px;
+    }
+    .modal-title h3{
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      font-weight: 900;
+      font-size: 1rem;
+    }
+    .modal-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .field{
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px;
+      min-width: 0;
+    }
+    .field.full{ grid-column: 1 / -1; }
+    .field h4{
+      color: var(--f1-red);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: .85rem;
+      margin-bottom: 10px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .field label{
+      font-size: .74rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 900;
+      letter-spacing: .9px;
+      display:block;
+      margin: 10px 0 6px;
+    }
+    .field input{
+      width: 100%;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--white);
+      padding: 10px 12px;
+      border-radius: 12px;
+      outline:none;
+      transition: transform .16s ease, border-color .2s ease;
+    }
+    .field input:focus{ border-color: rgba(225,6,0,0.7); }
+    .field input:hover{ transform: scale(1.01); }
+
+    .inline-2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .other-positions{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .other-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.07);
+      min-width: 0;
+    }
+    .other-row .name{
+      font-weight: 900;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      font-size: .82rem;
+      color: rgba(255,255,255,0.92);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      min-width:0;
+    }
+    .other-row input{
+      width: 92px;
+      padding: 10px 10px;
+      text-align:center;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--white);
+      outline:none;
+    }
+
+    .modal-actions{
+      display:flex; gap:10px;
+      margin-top: 14px;
+      justify-content:flex-end;
+      flex-wrap: wrap;
+    }
+
+    /* Pills */
+    .pill{
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      display:inline-flex; align-items:center; justify-content:center;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      min-width: 92px;
+    }
+    .pill.done{ background: rgba(0,255,25,0.18); border-color: rgba(0,255,25,0.35); color: #D8FFE0; }
+    .pill.pending{ background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+
+    /* ==============
+       CALENDRIER (Option 2)
+    ============== */
+    .calendar-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .calendar-topbar{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .calendar-topbar .left{
+      display:flex; gap:12px; align-items:end; flex-wrap:wrap;
+    }
+    .calendar-topbar .right{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+
+    /* HUB = sidebar + contenu : FIX débordement (minmax(0,1fr)) */
+    .calendar-hub{
+      display:grid;
+      grid-template-columns: minmax(240px, 240px) minmax(0, 1fr);
+      gap: 14px;
+      align-items:start;
+      min-width: 0;
+    }
+
+    .gp-sidebar{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position: sticky;
+      top: 110px;
+      max-height: calc(100vh - 140px);
+      padding: 10px;
+      width: 100%;
+      min-width: 0;
+    }
+    .gp-sidebar-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      overflow:auto;
+      max-height: calc(100vh - 180px);
+      padding-right: 4px;
+      min-width: 0;
+    }
+
+    .gp-side-item{
+      cursor:pointer;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      padding: 10px 8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      transition: transform .16s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      user-select:none;
+    }
+    .gp-side-item:hover{
+      transform: scale(1.02);
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.14);
+    }
+    .gp-side-item.active{
+      border-color: var(--gp-accent-border);
+      background: radial-gradient(260px 180px at 50% 20%, var(--gp-accent-soft), rgba(255,255,255,0.04));
+      box-shadow: 0 0 18px var(--gp-accent-soft);
+    }
+    .gp-side-flag{
+      width: 50px;
+      height: 50px;
+      border-radius: 999px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,0.25);
+    }
+    .gp-side-flag img{
+      width:100%;
+      height:100%;
+      object-fit: contain;
+      padding: 6px;
+      display:block;
+    }
+    .gp-side-round{
+      font-weight: 900;
+      font-size: .78rem;
+      letter-spacing: 1px;
+      opacity: .95;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+    .gp-side-name{
+      font-weight: 900;
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.85);
+      text-align:center;
+      line-height: 1.1;
+      max-width: 200px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .gp-side-dot{
+      width: 10px; height:10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.20);
+    }
+    .gp-side-dot.done{
+      background: rgba(0,255,25,0.55);
+      border-color: rgba(0,255,25,0.65);
+      box-shadow: 0 0 14px rgba(0,255,25,0.25);
+    }
+
+    .gp-card{
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background:
+        radial-gradient(900px 380px at 30% 25%, var(--gp-accent-soft), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .gp-card-inner{
+      display:grid;
+      grid-template-columns: 460px minmax(0, 1fr);
+      gap: 0;
+      min-height: 320px;
+      min-width: 0;
+    }
+    .gp-card-inner > *{ min-width:0; }
+
+    .gp-map{
+      padding: 16px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-width:0;
+      position: relative;
+      z-index: 2;
+    }
+    .gp-map-frame{
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.30);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      min-width:0;
+      overflow: visible;
+      cursor: zoom-in;
+    }
+    .gp-map-frame::before{
+      content:"";
+      position: absolute;
+      inset: -18px;
+      background: rgba(0,0,0,0);
+      border-radius: 18px;
+      transition: background 180ms ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .gp-map-frame img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display:block;
+      filter: drop-shadow(0 14px 40px rgba(0,0,0,0.55));
+      transform: scale(1);
+      transition: transform 220ms ease, filter 220ms ease;
+      transform-origin: center center;
+      position: relative;
+      z-index: 2;
+      will-change: transform;
+    }
+    .gp-map-frame:hover::before{ background: rgba(0,0,0,0.85); }
+    .gp-map-frame:hover img{
+      transform: scale(1.12);
+      filter: drop-shadow(0 18px 55px rgba(0,0,0,0.65));
+      z-index: 10;
+    }
+    .gp-map-placeholder{
+      color: var(--muted);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 18px;
+      text-align:center;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .gp-info{
+      padding: 18px 18px 16px;
+      min-width:0;
+    }
+
+    .gp-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom: 8px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .gp-title{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .gp-country-logo{
+      width: 74px;
+      height: 74px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      overflow:hidden;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+    }
+    .gp-country-logo img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+      display:block;
+    }
+
+    .gp-title-text{
+      min-width:0;
+      flex: 1 1 auto;
+    }
+    .gp-title-text h3{
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      margin-bottom: 2px;
+      min-width:0;
+    }
+    .gp-sub{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 1rem;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+      max-width: 100%;
+    }
+
+    .gp-stats{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 12px;
+      min-width:0;
+    }
+    .stat-card{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+      padding: 14px;
+      text-align:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.25) inset;
+      position:relative;
+      min-width:0;
+    }
+    .stat-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius: 18px;
+      border: 1px solid transparent;
+      pointer-events:none;
+    }
+    .stat-card.accent::after{
+      border-color: var(--gp-accent-border);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 20px var(--gp-accent-soft);
+    }
+    .stat-k{
+      color: rgba(255,255,255,0.70);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: .85rem;
+      margin-bottom: 6px;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .stat-v{
+      font-weight: 900;
+      font-size: clamp(0.82rem, 0.8vw, 1.12rem);
+      line-height: 1.15;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: clip;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      min-width: 0;
+    }
+
+    .gp-stats2{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 12px;
+      min-width:0;
+    }
+
+    .gp-tags{
+      display:flex;
+      gap:10px;
+      margin-top: 14px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .tag{
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      font-weight: 900;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      font-size: .8rem;
+      user-select:none;
+    }
+    .tag.accent{
+      border-color: var(--gp-accent-border);
+      background: var(--gp-accent-soft);
+    }
+
+    .results-panel{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.22);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+      overflow:hidden;
+      min-width:0;
+    }
+    .results-panel-head{
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.35);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .results-panel-head strong{
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: .95rem;
+      min-width:0;
+    }
+    .results-panel-body{
+      padding: 12px 16px 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      min-width:0;
+    }
+    .mini-card{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.28);
+      padding: 12px;
+      min-width:0;
+    }
+    .mini-card .who{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      min-width:0;
+    }
+    .mini-card .row{
+      display:flex;
+      justify-content:space-between;
+      color: rgba(255,255,255,0.9);
+      font-weight: 800;
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+      gap: 10px;
+      min-width:0;
+    }
+    .mini-card .row span{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .mini-card .row:last-child{ border-bottom:none; }
+    .mini-card .muted{ color: var(--muted); font-weight: 700; }
+
+    footer{
+      padding: 18px 32px 28px;
+      color: var(--muted);
+      text-align:center;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 1100px){
+      .gp-card-inner{ grid-template-columns: 1fr; }
+      .gp-map{ border-right:none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .gp-stats{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .gp-stats2{ grid-template-columns: 1fr; }
+      .results-panel-body{ grid-template-columns: 1fr; }
+      .other-positions{ grid-template-columns: 1fr; }
+
+      .calendar-hub{ grid-template-columns: 1fr; }
+      .gp-sidebar{ position:relative; top:auto; max-height:none; }
+      .gp-sidebar-list{
+        flex-direction: row;
+        max-height:none;
+        overflow:auto;
+        padding-bottom: 6px;
+      }
+      .gp-side-item{ min-width: 110px; }
+    }
+
+    @media (max-width: 920px){
+      main{ padding: 22px 14px 34px; }
+      header{ padding: 16px 14px; }
+      .filter-bar{ padding: 12px 14px; }
+      .ea-row{ grid-template-columns: 70px 1.7fr 90px 120px 140px; }
+      .modal-grid{ grid-template-columns: 1fr; }
+      .field.full{ grid-column: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">F1 <span class="sub">Duel Tracker</span></div>
+    <div class="nav-links">
+      <div class="nav-item active" onclick="switchTab('pilots')">Pilotes</div>
+      <div class="nav-item" onclick="switchTab('constructors')">Constructeurs</div>
+      <div class="nav-item" onclick="switchTab('calendar')">Calendrier</div>
+      <div class="nav-item" onclick="switchTab('data')">Données</div>
+    </div>
+  </header>
+
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>Championnat</label>
+      <select id="championshipSelect"></select>
+    </div>
+
+    <div class="filter-group">
+      <label>Ordre</label>
+      <select id="orderSelect">
+        <option value="grid">Ordre grille (style EA)</option>
+        <option value="points">Tri par points (classement)</option>
+      </select>
+    </div>
+
+    <button class="btn" style="margin-left:auto" onclick="createNewChampionship()">+ Nouveau championnat</button>
+    <button class="btn secondary" onclick="duplicateChampionship()">Dupliquer championnat</button>
+    <button class="btn secondary" onclick="resetAll()">Reset</button>
+  </div>
+
+  <main>
+    <!-- PILOTS -->
+    <section id="pilots" class="section active">
+      <div class="title-row">
+        <div>
+          <h2>Classement pilotes – Grille complète (Ferrari = vous)</h2>
+          <div class="subtitle">
+            Les points sont calculés à partir des <b>positions de course</b> saisies GP par GP.
+            Survole la case <b>POINTS</b> pour voir le détail.
+          </div>
+        </div>
+      </div>
+
+      <div class="ea-table">
+        <div class="ea-row ea-header">
+          <div style="text-align:center;">RANG</div>
+          <div>PILOTE</div>
+          <div style="text-align:center;">NAT</div>
+          <div style="text-align:center;">ÉQUIPE</div>
+          <div style="text-align:center;">POINTS</div>
+        </div>
+        <div id="pilotsBody"></div>
+      </div>
+    </section>
+
+    <!-- CONSTRUCTORS -->
+    <section id="constructors" class="section">
+      <div class="title-row">
+        <div>
+          <h2>Classement constructeurs – Points par écurie</h2>
+          <div class="subtitle">
+            Total = somme des points de course saisis pour les pilotes de l’écurie (Ferrari = Raphaël + Moïse).
+          </div>
+        </div>
+      </div>
+
+      <div class="ea-table">
+        <div class="ea-row ea-header" style="grid-template-columns: 90px 1.8fr 220px;">
+          <div style="text-align:center;">RANG</div>
+          <div>ÉCURIE</div>
+          <div style="text-align:center;">POINTS</div>
+        </div>
+        <div id="constructorsBody"></div>
+      </div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section id="calendar" class="section">
+      <div class="title-row">
+        <div>
+          <h2>Calendrier – Circuits + saisie résultats</h2>
+          <div class="subtitle">
+            Saisie : <b>Raphaël/Moïse</b> (Qualif temps + Qualif position + Course position + Écart P1 + Meilleur temps course) •
+            <b>Autres pilotes</b> (Course position uniquement).
+          </div>
+        </div>
+      </div>
+
+      <div class="calendar-wrap">
+        <div class="calendar-topbar">
+          <div class="left">
+            <div class="filter-group">
+              <label>Grand Prix</label>
+              <select id="gpSelect"></select>
+            </div>
+            <div id="gpStatusPill" class="pill pending">À venir</div>
+          </div>
+          <div class="right">
+            <button class="btn secondary" onclick="prevGP()">◀</button>
+            <button class="btn secondary" onclick="nextGP()">▶</button>
+            <button class="btn" onclick="openRaceModal(currentRaceIndex)">Saisir / Modifier résultats</button>
+          </div>
+        </div>
+
+        <div class="calendar-hub">
+          <aside class="gp-sidebar" aria-label="Mini calendrier pays">
+            <div id="gpSidebarList" class="gp-sidebar-list"></div>
+          </aside>
+
+          <div class="gp-main" style="display:flex; flex-direction:column; gap:14px; min-width:0;">
+            <div class="gp-card">
+              <div class="gp-card-inner">
+                <div class="gp-map">
+                  <div class="gp-map-frame">
+                    <img id="gpMapImg" alt="Circuit" style="display:none;"
+                         onerror="this.style.display='none'; document.getElementById('gpMapPlaceholder').style.display='block';">
+                    <div id="gpMapPlaceholder" class="gp-map-placeholder" style="display:none;">
+                      Aucune image trouvée.<br>
+                      Place une image ici :<br>
+                      <span style="color:rgba(255,255,255,0.9); font-weight:900;">assets/circuits/maps/&lt;raceId&gt;.png</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="gp-info">
+                  <div class="gp-header">
+                    <div class="gp-title">
+                      <div class="gp-country-logo">
+                        <img id="gpCountryImg" alt="Pays" onerror="this.src=this.dataset.fallback;">
+                      </div>
+                      <div class="gp-title-text">
+                        <h3 id="gpTitle">—</h3>
+                        <div class="gp-sub" id="gpSub">—</div>
+                      </div>
+                    </div>
+                    <div class="gp-tags" id="gpTags"></div>
+                  </div>
+
+                  <div class="gp-stats">
+                    <div class="stat-card accent">
+                      <div class="stat-k">Pays</div>
+                      <div class="stat-v" id="statCountry">—</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-k">Tours</div>
+                      <div class="stat-v" id="statLaps">—</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-k">Virages</div>
+                      <div class="stat-v" id="statTurns">—</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-k">Longueur</div>
+                      <div class="stat-v" id="statLength">—</div>
+                    </div>
+                  </div>
+
+                  <div class="gp-stats2">
+                    <div class="stat-card">
+                      <div class="stat-k">DRS</div>
+                      <div class="stat-v" id="statDrs">—</div>
+                    </div>
+                    <div class="stat-card">
+                      <div class="stat-k">Ville</div>
+                      <div class="stat-v" id="statCity">—</div>
+                    </div>
+                    <div class="stat-card accent">
+                      <div class="stat-k">Dates</div>
+                      <div class="stat-v" id="statDates">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="results-panel">
+              <div class="results-panel-head">
+                <strong>Résultats saisis (Raphaël / Moïse)</strong>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                  <div style="color:var(--muted); font-weight:800;">
+                    Points Ferrari : <span style="color:var(--white); font-weight:900;" id="ferrariGpTotal">0</span>
+                  </div>
+                  <button class="btn secondary" onclick="openRaceModal(currentRaceIndex)">Ouvrir saisie</button>
+                </div>
+              </div>
+              <div class="results-panel-body">
+                <div class="mini-card" id="miniRaph"></div>
+                <div class="mini-card" id="miniMoise"></div>
+              </div>
+            </div>
+
+            <div class="title-row" style="margin-top:6px;">
+              <div class="subtitle" style="margin:0;">
+                Astuce : mets tes images pays (rondes) dans <b>assets/circuits/flags/xx.png</b> (ex: <b>au.png</b>) et tes maps dans <b>assets/circuits/maps/raceId.png</b>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATA -->
+    <section id="data" class="section">
+      <div class="title-row">
+        <div>
+          <h2>Données</h2>
+          <div class="subtitle">Export/import JSON (copier-coller). Pratique pour sauvegarder/partager.</div>
+        </div>
+      </div>
+
+      <div class="ea-table" style="padding:16px;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+          <button class="btn" onclick="exportData()">Exporter</button>
+          <button class="btn secondary" onclick="importData()">Importer</button>
+          <div style="color:var(--muted); font-weight:700;">
+            Stockage : <span style="color:var(--white); font-weight:900;">localStorage</span>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <textarea id="dataBox" style="width:100%; min-height:240px; background:rgba(0,0,0,0.35); color:var(--white); border:1px solid rgba(255,255,255,0.10); border-radius:14px; padding:12px; outline:none;"></textarea>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Championnat privé F1 2025 – Raphaël & Moïse (Ferrari)</footer>
+
+  <!-- Tooltip -->
+  <div id="tooltip" class="tooltip"></div>
+
+  <!-- Modal GP -->
+  <div id="raceModal" class="modal" onclick="modalBackdropClose(event)">
+    <div class="modal-content">
+      <div class="modal-title">
+        <h3 id="modalTitle">GP</h3>
+        <button class="btn secondary" onclick="closeRaceModal()">Fermer</button>
+      </div>
+
+      <div style="color:var(--muted); font-weight:700; font-size:.92rem;">
+        Points automatiques = barème F1 top10 (25-18-15-12-10-8-6-4-2-1) via <b>position de course</b>.
+      </div>
+
+      <form onsubmit="saveRace(event)">
+        <div class="modal-grid">
+          <div class="field">
+            <h4><span class="sf-badge">SF</span> Raphaël</h4>
+
+            <div class="inline-2">
+              <div>
+                <label>Position qualif</label>
+                <input type="number" id="q_pos_raph" min="1" max="20" placeholder="Ex: 3">
+              </div>
+              <div>
+                <label>Temps qualif</label>
+                <input type="text" id="q_time_raph" placeholder="Ex: 1:32.456">
+              </div>
+            </div>
+
+            <label>Position course (arrivée)</label>
+            <input type="number" id="r_pos_raph" min="1" max="20" placeholder="Ex: 5">
+
+            <label>Écart P1 (format libre)</label>
+            <input type="text" id="gap_raph" placeholder="Ex: +1:15.822">
+
+            <label>Meilleur temps en course</label>
+            <input type="text" id="best_race_raph" placeholder="Ex: 1:31.999">
+          </div>
+
+          <div class="field">
+            <h4><span class="sf-badge">SF</span> Moïse</h4>
+
+            <div class="inline-2">
+              <div>
+                <label>Position qualif</label>
+                <input type="number" id="q_pos_moise" min="1" max="20" placeholder="Ex: 7">
+              </div>
+              <div>
+                <label>Temps qualif</label>
+                <input type="text" id="q_time_moise" placeholder="Ex: 1:33.012">
+              </div>
+            </div>
+
+            <label>Position course (arrivée)</label>
+            <input type="number" id="r_pos_moise" min="1" max="20" placeholder="Ex: 10">
+
+            <label>Écart P1 (format libre)</label>
+            <input type="text" id="gap_moise" placeholder="Ex: +0:22.100">
+
+            <label>Meilleur temps en course</label>
+            <input type="text" id="best_race_moise" placeholder="Ex: 1:32.120">
+          </div>
+
+          <div class="field full">
+            <h4>Autres pilotes — Position course uniquement</h4>
+            <div style="color:var(--muted); font-weight:700; font-size:.9rem;">
+              Laisse vide si non renseigné. Les points sont calculés automatiquement.
+            </div>
+            <div id="otherPositionsWrap" class="other-positions"></div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn">Enregistrer</button>
+          <button type="button" class="btn secondary" onclick="closeRaceModal()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ===========================
+       STORAGE
+    ============================ */
+    const STORAGE_KEY = "f1_duel_tracker_grid_v3"; // v3: résultats GP pour tous les pilotes
+    const POINTS = [25,18,15,12,10,8,6,4,2,1];
+
+    /* ===========================
+       CALENDRIER 2025
+    ============================ */
+    const CIRCUITS_2025 = [
+      { id:"melbourne", name:"Melbourne Grand Prix Circuit", country:"Australie", countryCode:"au", city:"Melbourne", dates:"14–16 mars 2025", laps:58, turns:16, lengthKm:"5.303", drs:"2", tags:["Rapide","Technique"], accent:"#2D7DFF" },
+      { id:"shanghai", name:"Shanghai International Circuit", country:"Chine", countryCode:"cn", city:"Shanghai", dates:"21–23 mars 2025", laps:56, turns:16, lengthKm:"5.451", drs:"2", tags:["Technique"], accent:"#E10600" },
+      { id:"suzuka", name:"Suzuka International Racing Course", country:"Japon", countryCode:"jp", city:"Suzuka", dates:"04–06 avril 2025", laps:53, turns:18, lengthKm:"5.807", drs:"1", tags:["Technique"], accent:"#FF3B3B" },
+      { id:"bahrain", name:"Circuit International de Bahreïn", country:"Bahreïn", countryCode:"bh", city:"Sakhir", dates:"11–13 avril 2025", laps:57, turns:15, lengthKm:"5.412", drs:"3", tags:["Rapide"], accent:"#FFB020" },
+      { id:"jeddah", name:"Jeddah Corniche Circuit", country:"Arabie Saoudite", countryCode:"sa", city:"Djeddah", dates:"18–20 avril 2025", laps:50, turns:27, lengthKm:"6.174", drs:"3", tags:["Rapide"], accent:"#2ED47A" },
+      { id:"miami", name:"Miami International Autodrome", country:"États-Unis", countryCode:"us", city:"Miami", dates:"02–04 mai 2025", laps:57, turns:19, lengthKm:"5.41", drs:"-", tags:["Rapide"], accent:"#FF4FD8" },
+      { id:"imola", name:"Autodromo Enzo e Dino Ferrari", country:"Italie", countryCode:"it", city:"Imola", dates:"16–18 mai 2025", laps:63, turns:19, lengthKm:"4.909", drs:"1", tags:["Technique"], accent:"#00C2FF" },
+      { id:"monaco", name:"Circuit de Monaco", country:"Monaco", countryCode:"mc", city:"Monaco", dates:"23–25 mai 2025", laps:78, turns:19, lengthKm:"3.337", drs:"1", tags:["Technique"], accent:"#C0C0C0" },
+      { id:"barcelona", name:"Circuit de Barcelona-Catalunya", country:"Espagne", countryCode:"es", city:"Barcelone", dates:"30 mai – 1er juin 2025", laps:66, turns:16, lengthKm:"4.675", drs:"2", tags:["Technique"], accent:"#FFD166" },
+      { id:"montreal", name:"Circuit Gilles-Villeneuve", country:"Canada", countryCode:"ca", city:"Montréal", dates:"13–15 juin 2025", laps:70, turns:14, lengthKm:"4.361", drs:"2", tags:["Rapide"], accent:"#FF3B3B" },
+      { id:"spielberg", name:"Red Bull Ring", country:"Autriche", countryCode:"at", city:"Spielberg", dates:"27–29 juin 2025", laps:71, turns:10, lengthKm:"4.318", drs:"3", tags:["Rapide"], accent:"#E10600" },
+      { id:"silverstone", name:"Silverstone Circuit", country:"Grande-Bretagne", countryCode:"gb", city:"Silverstone", dates:"04–06 juillet 2025", laps:52, turns:18, lengthKm:"5.891", drs:"2", tags:["Rapide"], accent:"#2D7DFF" },
+      { id:"spa", name:"Circuit de Spa-Francorchamps", country:"Belgique", countryCode:"be", city:"Spa", dates:"25–27 juillet 2025", laps:44, turns:19, lengthKm:"7.004", drs:"2", tags:["Rapide"], accent:"#FFD166" },
+      { id:"hungaroring", name:"Circuit Magyar Nagydij", country:"Hongrie", countryCode:"hu", city:"Budapest", dates:"01–03 août 2025", laps:70, turns:14, lengthKm:"4.381", drs:"1", tags:["Technique"], accent:"#2ED47A" },
+      { id:"zandvoort", name:"Circuit Zandvoort", country:"Pays-Bas", countryCode:"nl", city:"Zandvoort", dates:"29–31 août 2025", laps:72, turns:14, lengthKm:"4.259", drs:"2", tags:["Technique"], accent:"#FF8A00" },
+      { id:"monza", name:"Autodromo Nazionale Monza", country:"Italie", countryCode:"it", city:"Monza", dates:"05–07 septembre 2025", laps:53, turns:11, lengthKm:"5.793", drs:"2", tags:["Rapide"], accent:"#00C2FF" },
+      { id:"baku", name:"Baku City Circuit", country:"Azerbaïdjan", countryCode:"az", city:"Bakou", dates:"19–21 septembre 2025", laps:51, turns:20, lengthKm:"6.003", drs:"2", tags:["Rapide"], accent:"#2ED47A" },
+      { id:"singapore", name:"Marina Bay Street Circuit", country:"Singapour", countryCode:"sg", city:"Singapour", dates:"03–05 octobre 2025", laps:61, turns:23, lengthKm:"5.063", drs:"3", tags:["Technique"], accent:"#FF4FD8" },
+      { id:"austin", name:"Circuit of the Americas", country:"États-Unis", countryCode:"us", city:"Austin", dates:"17–19 octobre 2025", laps:56, turns:20, lengthKm:"5.513", drs:"2", tags:["Technique"], accent:"#FFB020" },
+      { id:"mexico", name:"Autódromo Hermanos Rodríguez", country:"Mexique", countryCode:"mx", city:"Mexico", dates:"24–26 octobre 2025", laps:71, turns:17, lengthKm:"4.304", drs:"2", tags:["Rapide"], accent:"#2ED47A" },
+      { id:"interlagos", name:"Autódromo José Carlos Pace", country:"Brésil", countryCode:"br", city:"São Paulo", dates:"07–09 novembre 2025", laps:71, turns:15, lengthKm:"4.309", drs:"2", tags:["Technique"], accent:"#FFD166" },
+      { id:"lasvegas", name:"Las Vegas Street Circuit", country:"États-Unis", countryCode:"us", city:"Las Vegas", dates:"20–22 novembre 2025", laps:50, turns:17, lengthKm:"6.12", drs:"2", tags:["Rapide"], accent:"#C0C0C0" },
+      { id:"lusail", name:"Lusail International Circuit", country:"Qatar", countryCode:"qa", city:"Lusail", dates:"28–30 novembre 2025", laps:57, turns:16, lengthKm:"5.419", drs:"1", tags:["Rapide"], accent:"#FFB020" },
+      { id:"abudhabi", name:"Yas Marina Circuit", country:"Émirats Arabes Unis", countryCode:"ae", city:"Abu Dhabi", dates:"05–07 décembre 2025", laps:58, turns:16, lengthKm:"5.281", drs:"2", tags:["Technique"], accent:"#2D7DFF" }
+    ];
+
+    /* ===========================
+       Grille 20 pilotes
+    ============================ */
+    const GRID_DRIVERS = [
+      { id:"verstappen", name:"Max Verstappen", natCode:"nl", natImg:"https://flagcdn.com/w80/nl.png", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
+      { id:"norris", name:"Lando Norris", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
+      { id:"raph", name:"Raphaël", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
+      { id:"russell", name:"George Russell", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
+      { id:"piastri", name:"Oscar Piastri", natCode:"au", natImg:"https://flagcdn.com/w80/au.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
+      { id:"moise", name:"Moïse", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
+      { id:"alonso", name:"Fernando Alonso", natCode:"es", natImg:"https://flagcdn.com/w80/es.png", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
+      { id:"hulkenberg", name:"Nico Hülkenberg", natCode:"de", natImg:"https://flagcdn.com/w80/de.png", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
+      { id:"albon", name:"Alexander Albon", natCode:"th", natImg:"https://flagcdn.com/w80/th.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
+      { id:"gasly", name:"Pierre Gasly", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" },
+
+      { id:"sainz", name:"Carlos Sainz Jr.", natCode:"es", natImg:"https://flagcdn.com/w80/es.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
+      { id:"ocon", name:"Esteban Ocon", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" },
+      { id:"hadjar", name:"Isack Hadjar", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
+      { id:"antonelli", name:"Andrea Antonelli", natCode:"it", natImg:"https://flagcdn.com/w80/it.png", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
+      { id:"bearman", name:"Oliver Bearman", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" },
+      { id:"bortoleto", name:"Gabriel Bortoleto", natCode:"br", natImg:"https://flagcdn.com/w80/br.png", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
+      { id:"tsunoda", name:"Yuki Tsunoda", natCode:"jp", natImg:"https://flagcdn.com/w80/jp.png", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
+      { id:"lawson", name:"Liam Lawson", natCode:"nz", natImg:"https://flagcdn.com/w80/nz.png", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
+      { id:"stroll", name:"Lance Stroll", natCode:"ca", natImg:"https://flagcdn.com/w80/ca.png", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
+      { id:"colapinto", name:"Franco Colapinto", natCode:"ar", natImg:"https://flagcdn.com/w80/ar.png", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" }
+    ];
+
+    /* ===========================
+       App state
+    ============================ */
+    let appData = { championships: [], activeId: null };
+    let currentRaceIndex = 0;
+
+    /* ===========================
+       Utils couleur
+    ============================ */
+    function hexToRgba(hex, a){
+      const h = (hex || "").replace("#","");
+      if(h.length !== 6) return `rgba(225,6,0,${a})`;
+      const r = parseInt(h.slice(0,2),16);
+      const g = parseInt(h.slice(2,4),16);
+      const b = parseInt(h.slice(4,6),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    function setGpTheme(hex){
+      document.documentElement.style.setProperty("--gp-accent", hex || "#E10600");
+      document.documentElement.style.setProperty("--gp-accent-soft", hexToRgba(hex || "#E10600", 0.18));
+      document.documentElement.style.setProperty("--gp-accent-border", hexToRgba(hex || "#E10600", 0.42));
+    }
+
+    /* ===========================
+       Storage
+    ============================ */
+    function load(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{ appData = JSON.parse(raw); }catch(e){ console.warn(e); }
+      }
+      if(!appData.championships?.length){
+        createNewChampionship("Saison 1");
+      }
+      if(!appData.activeId){
+        appData.activeId = appData.championships[0].id;
+      }
+      appData.championships.forEach(ch => ensureCalendar(ch));
+    }
+
+    function save(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+      refreshAll();
+    }
+
+    function resetAll(){
+      if(!confirm("Supprimer toutes les données locales ?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    /* ===========================
+       Championnats / résultats
+    ============================ */
+    function emptyDriverResult(){
+      return {
+        qualPos: null,        // raph/moise
+        qualTime: "",         // raph/moise
+        racePos: null,        // tout le monde
+        gapToP1: "",          // raph/moise (format libre)
+        bestRaceTime: "",     // raph/moise (meilleur temps en course)
+        pts: 0
+      };
+    }
+
+    function buildResultsSkeleton(){
+      const results = {};
+      GRID_DRIVERS.forEach(d => { results[d.id] = emptyDriverResult(); });
+      return results;
+    }
+
+    function buildRaceFromCircuit(c, idx){
+      return {
+        round: idx + 1,
+        id: c.id,
+        name: c.name,
+        country: c.country,
+        countryCode: c.countryCode,
+        city: c.city,
+        dates: c.dates,
+        laps: c.laps,
+        turns: c.turns,
+        lengthKm: c.lengthKm,
+        drs: c.drs,
+        tags: c.tags || [],
+        accent: c.accent || "#E10600",
+        done:false,
+        results: buildResultsSkeleton()
+      };
+    }
+
+    function ensureCalendar(champ){
+      if(!Array.isArray(champ.races)) champ.races = [];
+      if(champ.races.length === 0){
+        champ.races = CIRCUITS_2025.map(buildRaceFromCircuit);
+        return;
+      }
+
+      // Migration / normalisation
+      const templateById = new Map(CIRCUITS_2025.map((c,i)=>[c.id, buildRaceFromCircuit(c,i)]));
+
+      champ.races = champ.races.map((r, idx) => {
+        const t = templateById.get(r.id) || buildRaceFromCircuit(CIRCUITS_2025[idx] || CIRCUITS_2025[0], idx);
+        const out = { ...t, ...r };
+
+        // Cas ancien format (results.raph.pos etc.)
+        if(out.results && (out.results.raph || out.results.moise) && (out.results.raph.pos !== undefined || out.results.moise.pos !== undefined)){
+          const fresh = buildResultsSkeleton();
+
+          const oldR = out.results.raph || {};
+          const oldM = out.results.moise || {};
+
+          fresh.raph.racePos = Number.isFinite(parseInt(oldR.pos,10)) ? parseInt(oldR.pos,10) : null;
+          fresh.raph.qualTime = (oldR.qualTime || "");
+          fresh.raph.gapToP1 = (oldR.gapToP1 || "");
+          fresh.raph.bestRaceTime = (oldR.bestRaceTime || oldR.bestLap || "");
+          fresh.raph.pts = computePointsFromPos(fresh.raph.racePos);
+
+          fresh.moise.racePos = Number.isFinite(parseInt(oldM.pos,10)) ? parseInt(oldM.pos,10) : null;
+          fresh.moise.qualTime = (oldM.qualTime || "");
+          fresh.moise.gapToP1 = (oldM.gapToP1 || "");
+          fresh.moise.bestRaceTime = (oldM.bestRaceTime || oldM.bestLap || "");
+          fresh.moise.pts = computePointsFromPos(fresh.moise.racePos);
+
+          out.results = fresh;
+          out.done = !!(fresh.raph.racePos || fresh.moise.racePos);
+          return out;
+        }
+
+        // Nouveau format mais incomplet
+        const fresh = buildResultsSkeleton();
+        if(!out.results || typeof out.results !== "object") out.results = {};
+        Object.keys(fresh).forEach(id => {
+          out.results[id] = { ...emptyDriverResult(), ...(out.results[id] || {}) };
+          out.results[id].pts = computePointsFromPos(out.results[id].racePos);
+        });
+
+        out.done = Object.values(out.results).some(x => x && x.racePos !== null && x.racePos !== undefined);
+        return out;
+      });
+    }
+
+    function createNewChampionship(forcedName=null){
+      const name = forcedName ?? prompt("Nom du championnat :");
+      if(!name) return;
+
+      const id = Date.now();
+      const champ = {
+        id,
+        name,
+        createdAt: new Date().toISOString(),
+        races: CIRCUITS_2025.map(buildRaceFromCircuit)
+      };
+
+      appData.championships.push(champ);
+      appData.activeId = id;
+      save();
+    }
+
+    function duplicateChampionship(){
+      const base = getActiveChamp();
+      if(!base) return;
+
+      const name = prompt("Nom de la nouvelle saison (copie calendrier) :", `${base.name} (copie)`) || "";
+      if(!name.trim()) return;
+
+      const id = Date.now();
+      const champ = {
+        id,
+        name: name.trim(),
+        createdAt: new Date().toISOString(),
+        races: base.races.map((r, idx) => {
+          return buildRaceFromCircuit({
+            id: r.id, name: r.name, country: r.country, countryCode: r.countryCode,
+            city: r.city, dates: r.dates, laps: r.laps, turns: r.turns, lengthKm: r.lengthKm, drs: r.drs,
+            tags: r.tags || [], accent: r.accent || "#E10600"
+          }, idx);
+        })
+      };
+
+      appData.championships.push(champ);
+      appData.activeId = id;
+      currentRaceIndex = 0;
+      save();
+    }
+
+    function getActiveChamp(){
+      return appData.championships.find(c => c.id === appData.activeId);
+    }
+
+    function populateChampionshipSelect(){
+      const sel = document.getElementById("championshipSelect");
+      sel.innerHTML = "";
+      appData.championships.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.name;
+        if(c.id === appData.activeId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.onchange = () => {
+        appData.activeId = Number(sel.value);
+        currentRaceIndex = 0;
+        save();
+      };
+    }
+
+    /* ===========================
+       Points / stats
+    ============================ */
+    function computePointsFromPos(pos){
+      const p = parseInt(pos, 10);
+      if(!Number.isFinite(p) || p < 1 || p > 20) return 0;
+      return (p <= 10) ? POINTS[p - 1] : 0;
+    }
+
+    function seasonPoints(driverId, champ){
+      let total = 0;
+      champ.races.forEach(r => {
+        if(!r.done) return;
+        const res = r.results?.[driverId];
+        total += (res?.pts ?? 0);
+      });
+      return total;
+    }
+
+    function breakdownForDriver(driverId, champ){
+      const out = [];
+      champ.races.forEach(r => {
+        if(!r.done) return;
+        const res = r.results?.[driverId];
+        const pos = res?.racePos ?? null;
+        if(pos === null || pos === undefined) return;
+        out.push({
+          gp: `${r.country} • ${r.name}`,
+          pos,
+          pts: res?.pts ?? 0
+        });
+      });
+      return out;
+    }
+
+    /* ===========================
+       RENDER: pilots table
+    ============================ */
+    function renderPilotsTable(){
+      const champ = getActiveChamp();
+      const body = document.getElementById("pilotsBody");
+      body.innerHTML = "";
+
+      const orderMode = document.getElementById("orderSelect").value;
+
+      let list = GRID_DRIVERS.map(d => ({
+        ...d,
+        points: seasonPoints(d.id, champ)
+      }));
+
+      if(orderMode === "points"){
+        const originalIndex = new Map(GRID_DRIVERS.map((d,i)=>[d.id,i]));
+        list.sort((a,b) => (b.points - a.points) || (originalIndex.get(a.id) - originalIndex.get(b.id)));
+      }
+
+      const podiumIds = (orderMode === "points") ? [list[0]?.id, list[1]?.id, list[2]?.id] : [];
+
+      list.forEach((d, i) => {
+        const rank = i + 1;
+        const row = document.createElement("div");
+        row.className = "ea-row ea-data";
+
+        if(orderMode === "points"){
+          const pIndex = podiumIds.indexOf(d.id);
+          if(pIndex === 0) row.classList.add("podium-1","podium-animate");
+          if(pIndex === 1) row.classList.add("podium-2","podium-animate");
+          if(pIndex === 2) row.classList.add("podium-3","podium-animate");
+        }
+
+        const medal =
+          (orderMode === "points" && rank === 1) ? "🥇" :
+          (orderMode === "points" && rank === 2) ? "🥈" :
+          (orderMode === "points" && rank === 3) ? "🥉" : "";
+
+        const portraitPath = `assets/portraits/${d.id}.png`;
+        const teamLogoPath = `assets/teams/${d.teamKey}.png`;
+
+        row.innerHTML = `
+          <div class="rank">${rank}<span class="medal">${medal}</span></div>
+
+          <div class="pilot-cell">
+            <div class="portrait">
+              <img src="${portraitPath}" alt="" onerror="this.style.display='none'; this.parentNode.querySelector('.fallback').style.display='flex';">
+              <div class="fallback" style="display:none;">${initials(d.name)}</div>
+            </div>
+            <div style="min-width:0;">
+              <div class="pilot-name">${d.name}</div>
+              <div class="pilot-meta">
+                ${d.teamKey === "ferrari" ? `<span class="sf-badge">SF</span>` : `<span style="opacity:.8;">•</span>`}
+                <span style="font-weight:800; text-transform:uppercase; letter-spacing:1px;">${d.teamName}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="nat">
+            <img src="${d.natImg}" alt="${d.natCode}">
+          </div>
+
+          <div class="team">
+            <div class="team-logo">
+              <img src="${teamLogoPath}" alt="" onerror="this.style.display='none'; this.parentNode.querySelector('.abbr').style.display='block';">
+              <div class="abbr" style="display:none;">${d.teamAbbr}</div>
+            </div>
+            ${d.teamName}
+          </div>
+
+          <div class="points">
+            <div class="points-box"
+                 title="Survolez pour détail par GP"
+                 data-driver="${d.id}"
+                 data-name="${d.name}">
+              ${d.points}
+            </div>
+          </div>
+        `;
+        body.appendChild(row);
+      });
+
+      document.querySelectorAll(".points-box").forEach(el => {
+        el.addEventListener("mouseenter", onPointsEnterDriver);
+        el.addEventListener("mousemove", onPointsMove);
+        el.addEventListener("mouseleave", onPointsLeave);
+      });
+    }
+
+    function initials(name){
+      const parts = name.trim().split(/\s+/);
+      const a = parts[0]?.[0] ?? "";
+      const b = parts[1]?.[0] ?? "";
+      return (a + b).toUpperCase();
+    }
+
+    /* ===========================
+       CONSTRUCTORS
+    ============================ */
+    function renderConstructorsTable(){
+      const champ = getActiveChamp();
+      const body = document.getElementById("constructorsBody");
+      body.innerHTML = "";
+
+      const byTeam = new Map();
+      GRID_DRIVERS.forEach(d => {
+        const pts = seasonPoints(d.id, champ);
+        if(!byTeam.has(d.teamKey)){
+          byTeam.set(d.teamKey, { teamKey:d.teamKey, teamName:d.teamName, teamAbbr:d.teamAbbr, points:0 });
+        }
+        byTeam.get(d.teamKey).points += pts;
+      });
+
+      let list = Array.from(byTeam.values());
+      list.sort((a,b) => b.points - a.points);
+
+      list.forEach((t, i) => {
+        const rank = i + 1;
+        const teamLogoPath = `assets/teams/${t.teamKey}.png`;
+        const row = document.createElement("div");
+        row.className = "ea-row ea-data";
+        row.style.gridTemplateColumns = "90px 1.8fr 220px";
+
+        if(t.teamKey === "ferrari"){
+          row.style.borderLeft = "4px solid rgba(225,6,0,1)";
+        }
+
+        row.innerHTML = `
+          <div class="rank">${rank}</div>
+          <div class="pilot-cell">
+            <div class="team-logo" style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);">
+              <img src="${teamLogoPath}" alt="" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;font-weight:900;letter-spacing:1px;&quot;>${t.teamAbbr}</div>';">
+            </div>
+            <div style="min-width:0;">
+              <div class="pilot-name" style="text-transform:uppercase; letter-spacing:1px;">${t.teamName}</div>
+              <div class="pilot-meta">
+                ${t.teamKey === "ferrari" ? `<span class="sf-badge">SF</span><span style="font-weight:800;">Raphaël + Moïse</span>` : `<span style="opacity:.8;">•</span><span style="font-weight:800;">Constructeurs</span>`}
+              </div>
+            </div>
+          </div>
+          <div class="points">
+            <div class="points-box" style="width:160px;">${t.points}</div>
+          </div>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    /* ===========================
+       Tooltip (détail points)
+    ============================ */
+    const tt = () => document.getElementById("tooltip");
+
+    function onPointsEnterDriver(e){
+      const champ = getActiveChamp();
+      const driverId = e.currentTarget.dataset.driver;
+      const name = e.currentTarget.dataset.name;
+
+      const total = seasonPoints(driverId, champ);
+      const breakdown = breakdownForDriver(driverId, champ);
+
+      let html = `
+        <div class="tt-title">
+          <strong>${name} • Détail</strong>
+          <div class="tt-total">${total} pts</div>
+        </div>
+        <div class="tt-list">
+      `;
+
+      if(!breakdown.length){
+        html += `<div style="color:var(--muted); font-weight:700; padding:6px 0;">Aucune course enregistrée.</div>`;
+      } else {
+        breakdown.forEach(item => {
+          html += `
+            <div class="tt-item">
+              <div class="gpname">${item.gp}</div>
+              <div class="gpmeta">
+                <span class="chip">P${item.pos}</span>
+                <span class="chip">${item.pts} pts</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+      const node = tt();
+      node.innerHTML = html;
+      node.style.display = "block";
+      positionTooltip(e);
+    }
+
+    function onPointsMove(e){ positionTooltip(e); }
+    function onPointsLeave(){ tt().style.display = "none"; }
+
+    function positionTooltip(e){
+      const node = tt();
+      const pad = 14;
+      const w = node.offsetWidth;
+      const h = node.offsetHeight;
+
+      let x = e.clientX + 18;
+      let y = e.clientY + 18;
+
+      if(x + w + pad > window.innerWidth) x = e.clientX - w - 18;
+      if(y + h + pad > window.innerHeight) y = e.clientY - h - 18;
+
+      node.style.left = x + "px";
+      node.style.top = y + "px";
+    }
+
+    /* ===========================
+       CALENDRIER
+    ============================ */
+    function populateGPSelect(){
+      const champ = getActiveChamp();
+      const sel = document.getElementById("gpSelect");
+      sel.innerHTML = "";
+      champ.races.forEach((r, idx) => {
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = `${String(r.round).padStart(2,"0")} • ${r.name}`;
+        sel.appendChild(opt);
+      });
+      sel.value = String(Math.min(currentRaceIndex, champ.races.length-1));
+      sel.onchange = () => { setCurrentGP(Number(sel.value), { scrollSidebar:true }); };
+    }
+
+    function renderGPSidebar(){
+      const champ = getActiveChamp();
+      const wrap = document.getElementById("gpSidebarList");
+      if(!wrap) return;
+      wrap.innerHTML = "";
+
+      champ.races.forEach((r, idx) => {
+        const item = document.createElement("div");
+        item.className = "gp-side-item" + (idx === currentRaceIndex ? " active" : "");
+        item.title = `${String(r.round).padStart(2,"0")} • ${r.country} — ${r.name}`;
+        item.onclick = () => setCurrentGP(idx, { scrollSidebar:false });
+
+        const localFlag = `assets/circuits/flags/${r.countryCode}.png`;
+        const cdnFlag = `https://flagcdn.com/w160/${r.countryCode}.png`;
+
+        item.innerHTML = `
+          <div class="gp-side-flag">
+            <img src="${localFlag}" alt="${r.country}" onerror="this.src='${cdnFlag}'">
+          </div>
+          <div class="gp-side-round">R${String(r.round).padStart(2,"0")}</div>
+          <div class="gp-side-name">${r.country}</div>
+          <div class="gp-side-dot ${r.done ? "done" : ""}"></div>
+        `;
+        wrap.appendChild(item);
+      });
+
+      scrollSidebarToActive();
+    }
+
+    function scrollSidebarToActive(){
+      const wrap = document.getElementById("gpSidebarList");
+      if(!wrap) return;
+      const active = wrap.querySelector(".gp-side-item.active");
+      if(active) active.scrollIntoView({ block:"nearest", inline:"nearest", behavior:"smooth" });
+    }
+
+    function setCurrentGP(idx, opts={ scrollSidebar:true }){
+      const champ = getActiveChamp();
+      if(!champ) return;
+      const max = champ.races.length - 1;
+      currentRaceIndex = Math.max(0, Math.min(idx, max));
+
+      const sel = document.getElementById("gpSelect");
+      if(sel) sel.value = String(currentRaceIndex);
+
+      renderCalendarCard();
+      renderGPSidebar();
+
+      if(opts.scrollSidebar) scrollSidebarToActive();
+    }
+
+    function prevGP(){ setCurrentGP(currentRaceIndex - 1); }
+    function nextGP(){ setCurrentGP(currentRaceIndex + 1); }
+
+    function renderCalendarCard(){
+      const champ = getActiveChamp();
+      const r = champ.races[currentRaceIndex];
+      if(!r) return;
+
+      setGpTheme(r.accent || "#E10600");
+
+      const pill = document.getElementById("gpStatusPill");
+      pill.className = `pill ${r.done ? "done" : "pending"}`;
+      pill.textContent = r.done ? "Fait" : "À venir";
+
+      document.getElementById("gpTitle").textContent = r.name;
+      document.getElementById("gpSub").textContent = `${r.country} • ${r.dates}`;
+
+      document.getElementById("statCountry").textContent = r.country;
+      document.getElementById("statLaps").textContent = r.laps ?? "—";
+      document.getElementById("statTurns").textContent = r.turns ?? "—";
+      document.getElementById("statLength").textContent = `${r.lengthKm ?? "—"} km`;
+      document.getElementById("statDrs").textContent = r.drs ?? "—";
+      document.getElementById("statCity").textContent = r.city ?? "—";
+      document.getElementById("statDates").textContent = r.dates ?? "—";
+
+      const tags = document.getElementById("gpTags");
+      tags.innerHTML = "";
+      (r.tags || []).forEach((t, idx) => {
+        const div = document.createElement("div");
+        div.className = "tag" + (idx === 0 ? " accent" : "");
+        div.textContent = t;
+        tags.appendChild(div);
+      });
+
+      const mapImg = document.getElementById("gpMapImg");
+      const mapPlaceholder = document.getElementById("gpMapPlaceholder");
+      const mapPath = `assets/circuits/maps/${r.id}.png`;
+
+      mapPlaceholder.style.display = "none";
+      mapImg.style.display = "block";
+      mapImg.src = mapPath;
+
+      const countryImg = document.getElementById("gpCountryImg");
+      const localFlag = `assets/circuits/flags/${r.countryCode}.png`;
+      const cdnFlag = `https://flagcdn.com/w160/${r.countryCode}.png`;
+      countryImg.dataset.fallback = cdnFlag;
+      countryImg.src = localFlag;
+
+      renderMiniResults(r);
+
+      const ferrariTotal = (r.results?.raph?.pts ?? 0) + (r.results?.moise?.pts ?? 0);
+      document.getElementById("ferrariGpTotal").textContent = ferrariTotal;
+    }
+
+    function renderMiniResults(r){
+      const mk = (who, res) => {
+        const qpos = res?.qualPos ?? null;
+        const qtime = (res?.qualTime || "").trim();
+        const rpos = res?.racePos ?? null;
+        const gap = (res?.gapToP1 || "").trim();
+        const best = (res?.bestRaceTime || "").trim();
+        const pts = res?.pts ?? 0;
+
+        const qualText = (qpos || qtime)
+          ? `${qpos ? ("P"+qpos) : "—"}${qtime ? (" • "+qtime) : ""}`
+          : "—";
+
+        return `
+          <div class="who">
+            <span class="sf-badge">SF</span> ${who}
+            <span style="margin-left:auto; font-weight:900; color:rgba(255,255,255,0.85);">+${pts} pts</span>
+          </div>
+          <div class="row"><span class="muted">Qualif</span><span>${qualText}</span></div>
+          <div class="row"><span class="muted">Course</span><span>${rpos ? ("P"+rpos) : "—"}</span></div>
+          <div class="row"><span class="muted">Écart P1</span><span>${gap ? gap : "—"}</span></div>
+          <div class="row"><span class="muted">Meilleur temps</span><span>${best ? best : "—"}</span></div>
+        `;
+      };
+
+      document.getElementById("miniRaph").innerHTML = mk("Raphaël", r.results?.raph);
+      document.getElementById("miniMoise").innerHTML = mk("Moïse", r.results?.moise);
+    }
+
+    /* ===========================
+       GP Modal (saisie)
+    ============================ */
+    function openRaceModal(i){
+      if(typeof i === "number") currentRaceIndex = i;
+      const champ = getActiveChamp();
+      const r = champ.races[currentRaceIndex];
+
+      document.getElementById("modalTitle").textContent = `${r.country} • ${r.name}`;
+
+      const rr = r.results?.raph || emptyDriverResult();
+      const rm = r.results?.moise || emptyDriverResult();
+
+      document.getElementById("q_pos_raph").value = rr.qualPos ?? "";
+      document.getElementById("q_time_raph").value = rr.qualTime ?? "";
+      document.getElementById("r_pos_raph").value = rr.racePos ?? "";
+      document.getElementById("gap_raph").value = rr.gapToP1 ?? "";
+      document.getElementById("best_race_raph").value = rr.bestRaceTime ?? "";
+
+      document.getElementById("q_pos_moise").value = rm.qualPos ?? "";
+      document.getElementById("q_time_moise").value = rm.qualTime ?? "";
+      document.getElementById("r_pos_moise").value = rm.racePos ?? "";
+      document.getElementById("gap_moise").value = rm.gapToP1 ?? "";
+      document.getElementById("best_race_moise").value = rm.bestRaceTime ?? "";
+
+      const wrap = document.getElementById("otherPositionsWrap");
+      wrap.innerHTML = "";
+
+      GRID_DRIVERS
+        .filter(d => d.id !== "raph" && d.id !== "moise")
+        .forEach(d => {
+          const res = r.results?.[d.id] || emptyDriverResult();
+          const row = document.createElement("div");
+          row.className = "other-row";
+          row.innerHTML = `
+            <div class="name">${d.name}</div>
+            <input type="number"
+                   min="1" max="20"
+                   inputmode="numeric"
+                   data-driver="${d.id}"
+                   placeholder="P"
+                   value="${res.racePos ?? ""}">
+          `;
+          wrap.appendChild(row);
+        });
+
+      document.getElementById("raceModal").style.display = "flex";
+    }
+
+    function closeRaceModal(){
+      document.getElementById("raceModal").style.display = "none";
+    }
+    function modalBackdropClose(e){
+      if(e.target.id === "raceModal") closeRaceModal();
+    }
+
+    function saveRace(e){
+      e.preventDefault();
+      const champ = getActiveChamp();
+      const r = champ.races[currentRaceIndex];
+      if(!r.results) r.results = buildResultsSkeleton();
+
+      // Raphaël
+      const qpr = parseInt(document.getElementById("q_pos_raph").value, 10);
+      const rpr = parseInt(document.getElementById("r_pos_raph").value, 10);
+      r.results.raph.qualPos = Number.isFinite(qpr) ? qpr : null;
+      r.results.raph.qualTime = (document.getElementById("q_time_raph").value || "").trim();
+      r.results.raph.racePos = Number.isFinite(rpr) ? rpr : null;
+      r.results.raph.gapToP1 = (document.getElementById("gap_raph").value || "").trim();
+      r.results.raph.bestRaceTime = (document.getElementById("best_race_raph").value || "").trim();
+      r.results.raph.pts = computePointsFromPos(r.results.raph.racePos);
+
+      // Moïse
+      const qpm = parseInt(document.getElementById("q_pos_moise").value, 10);
+      const rpm = parseInt(document.getElementById("r_pos_moise").value, 10);
+      r.results.moise.qualPos = Number.isFinite(qpm) ? qpm : null;
+      r.results.moise.qualTime = (document.getElementById("q_time_moise").value || "").trim();
+      r.results.moise.racePos = Number.isFinite(rpm) ? rpm : null;
+      r.results.moise.gapToP1 = (document.getElementById("gap_moise").value || "").trim();
+      r.results.moise.bestRaceTime = (document.getElementById("best_race_moise").value || "").trim();
+      r.results.moise.pts = computePointsFromPos(r.results.moise.racePos);
+
+      // Autres pilotes : position course uniquement
+      document.querySelectorAll("#otherPositionsWrap input[data-driver]").forEach(inp => {
+        const id = inp.dataset.driver;
+        const v = parseInt(inp.value, 10);
+        r.results[id] = r.results[id] || emptyDriverResult();
+        r.results[id].racePos = Number.isFinite(v) ? v : null;
+        r.results[id].pts = computePointsFromPos(r.results[id].racePos);
+      });
+
+      // done si au moins une position course saisie
+      r.done = Object.values(r.results).some(x => x && x.racePos !== null && x.racePos !== undefined);
+
+      save();
+      closeRaceModal();
+    }
+
+    /* ===========================
+       Export / Import
+    ============================ */
+    function exportData(){
+      document.getElementById("dataBox").value = JSON.stringify(appData, null, 2);
+    }
+    function importData(){
+      const box = document.getElementById("dataBox");
+      if(!box.value.trim()){
+        alert("Colle un JSON exporté dans la zone.");
+        return;
+      }
+      try{
+        const parsed = JSON.parse(box.value);
+        if(!parsed?.championships?.length) throw new Error("bad");
+        appData = parsed;
+        appData.championships.forEach(ch => ensureCalendar(ch));
+        save();
+        alert("Import OK !");
+      }catch(e){
+        alert("Import impossible : JSON invalide.");
+      }
+    }
+
+    /* ===========================
+       Tabs
+    ============================ */
+    function switchTab(id){
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+
+      const nav = document.querySelectorAll(".nav-item");
+      if(id === "pilots") nav[0].classList.add("active");
+      if(id === "constructors") nav[1].classList.add("active");
+      if(id === "calendar") nav[2].classList.add("active");
+      if(id === "data") nav[3].classList.add("active");
+    }
+
+    /* ===========================
+       Refresh
+    ============================ */
+    function refreshAll(){
+      populateChampionshipSelect();
+      populateGPSelect();
+      renderPilotsTable();
+      renderConstructorsTable();
+      renderCalendarCard();
+      renderGPSidebar();
+    }
+
+    document.getElementById("orderSelect").addEventListener("change", () => {
+      renderPilotsTable();
+    });
+
+    /* Navigation clavier (flèches gauche/droite) */
+    document.addEventListener("keydown", (e) => {
+      const isCalendarActive = document.getElementById("calendar")?.classList.contains("active");
+      if(!isCalendarActive) return;
+
+      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+      if(["input","textarea","select"].includes(tag)) return;
+
+      const modalOpen = (document.getElementById("raceModal")?.style.display === "flex");
+      if(modalOpen) return;
+
+      if(e.key === "ArrowLeft"){ e.preventDefault(); prevGP(); }
+      if(e.key === "ArrowRight"){ e.preventDefault(); nextGP(); }
+    });
+
+    /* ===========================
+       Init
+    ============================ */
+    window.addEventListener("load", () => {
+      load();
+      refreshAll();
+    });
+  </script>
+</body>
+</html>
