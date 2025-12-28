@@ -7,6 +7,10 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
   <style>
     :root{
       --f1-red:#E10600;
@@ -24,7 +28,6 @@
       --shadow: 0 20px 50px rgba(0,0,0,0.45);
       --radius: 14px;
 
-      /* Accent dynamique GP (mis à jour par JS) */
       --gp-accent: rgba(225,6,0,1);
       --gp-accent-soft: rgba(225,6,0,0.20);
       --gp-accent-border: rgba(225,6,0,0.45);
@@ -50,6 +53,8 @@
       position:sticky;
       top:0;
       z-index:100;
+      gap: 18px;
+      flex-wrap: wrap;
     }
     .logo{
       display:flex; align-items:baseline; gap:10px;
@@ -58,7 +63,7 @@
     }
     .logo .sub{ font-weight:300; color:var(--muted); letter-spacing:1px; }
 
-    .nav-links{ display:flex; gap:24px; flex-wrap:wrap; }
+    .nav-links{ display:flex; gap:24px; flex-wrap:wrap; align-items:center; }
     .nav-item{
       cursor:pointer;
       font-weight:800;
@@ -71,6 +76,36 @@
     }
     .nav-item:hover{ transform: scale(1.06); color:var(--white); }
     .nav-item.active{ color:var(--white); border-bottom:2px solid var(--f1-red); }
+
+    .room-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+      font-weight: 900;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      font-size: .78rem;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .room-pill .dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: rgba(0,255,25,0.55);
+      box-shadow: 0 0 14px rgba(0,255,25,0.25);
+      border: 1px solid rgba(0,255,25,0.55);
+    }
+    .room-pill .muted{
+      color: var(--muted);
+      font-weight: 800;
+      text-transform:none;
+      letter-spacing: 0;
+    }
 
     .filter-bar{
       background:#000;
@@ -553,15 +588,8 @@
     .pill.done{ background: rgba(0,255,25,0.18); border-color: rgba(0,255,25,0.35); color: #D8FFE0; }
     .pill.pending{ background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
 
-    /* ==============
-       CALENDRIER (Option 2)
-    ============== */
-    .calendar-wrap{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
+    /* CALENDRIER */
+    .calendar-wrap{ display:flex; flex-direction:column; gap:14px; }
     .calendar-topbar{
       display:flex;
       align-items:end;
@@ -569,14 +597,9 @@
       gap:12px;
       flex-wrap:wrap;
     }
-    .calendar-topbar .left{
-      display:flex; gap:12px; align-items:end; flex-wrap:wrap;
-    }
-    .calendar-topbar .right{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    }
+    .calendar-topbar .left{ display:flex; gap:12px; align-items:end; flex-wrap:wrap; }
+    .calendar-topbar .right{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 
-    /* HUB = sidebar + contenu : FIX débordement (minmax(0,1fr)) */
     .calendar-hub{
       display:grid;
       grid-template-columns: minmax(240px, 240px) minmax(0, 1fr);
@@ -774,11 +797,7 @@
       z-index: 2;
     }
 
-    .gp-info{
-      padding: 18px 18px 16px;
-      min-width:0;
-    }
-
+    .gp-info{ padding: 18px 18px 16px; min-width:0; }
     .gp-header{
       display:flex;
       align-items:center;
@@ -816,10 +835,7 @@
       display:block;
     }
 
-    .gp-title-text{
-      min-width:0;
-      flex: 1 1 auto;
-    }
+    .gp-title-text{ min-width:0; flex: 1 1 auto; }
     .gp-title-text h3{
       font-size: 1.35rem;
       font-weight: 900;
@@ -1035,11 +1051,20 @@
 <body>
   <header>
     <div class="logo">F1 <span class="sub">Duel Tracker</span></div>
+
     <div class="nav-links">
       <div class="nav-item active" onclick="switchTab('pilots')">Pilotes</div>
       <div class="nav-item" onclick="switchTab('constructors')">Constructeurs</div>
       <div class="nav-item" onclick="switchTab('calendar')">Calendrier</div>
       <div class="nav-item" onclick="switchTab('data')">Données</div>
+    </div>
+
+    <!-- Salle partagée (FireStore) -->
+    <div class="room-pill" title="Même # = mêmes données en temps réel">
+      <span class="dot"></span>
+      <span>SALLE :</span>
+      <span id="roomIdLabel">#...</span>
+      <span class="muted" id="syncStatus">sync…</span>
     </div>
   </header>
 
@@ -1238,7 +1263,9 @@
       <div class="title-row">
         <div>
           <h2>Données</h2>
-          <div class="subtitle">Export/import JSON (copier-coller). Pratique pour sauvegarder/partager.</div>
+          <div class="subtitle">
+            Export/import JSON (copier-coller). Stockage partagé : <b>Firestore</b> (salle via l’URL <b>#...</b>) + cache local.
+          </div>
         </div>
       </div>
 
@@ -1247,7 +1274,7 @@
           <button class="btn" onclick="exportData()">Exporter</button>
           <button class="btn secondary" onclick="importData()">Importer</button>
           <div style="color:var(--muted); font-weight:700;">
-            Stockage : <span style="color:var(--white); font-weight:900;">localStorage</span>
+            Salle : <span style="color:var(--white); font-weight:900;" id="roomIdLabel2">#...</span>
           </div>
         </div>
         <div style="margin-top:14px;">
@@ -1343,9 +1370,44 @@
 
   <script>
     /* ===========================
+       Firebase + ROOM (shared)
+    ============================ */
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2WiYTm0QuVuTQZiLLrCNoG3ERdpGNuu0",
+      authDomain: "f1-duel-tracker.firebaseapp.com",
+      projectId: "f1-duel-tracker",
+      storageBucket: "f1-duel-tracker.firebasestorage.app",
+      messagingSenderId: "138097190700",
+      appId: "1:138097190700:web:d4e3efb92a264d97926e89"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Salle partagée via l’URL : .../index.html#duel2025
+    const ROOM_ID = (location.hash || "#default").replace("#","").trim() || "default";
+    const docRef = db.collection("championships").doc(ROOM_ID);
+
+    (function(){
+      const el = document.getElementById("roomIdLabel");
+      if(el) el.textContent = "#" + ROOM_ID;
+      const el2 = document.getElementById("roomIdLabel2");
+      if(el2) el2.textContent = "#" + ROOM_ID;
+    })();
+
+    function setSyncStatus(txt){
+      const el = document.getElementById("syncStatus");
+      if(el) el.textContent = txt;
+    }
+
+    let isApplyingRemote = false;
+    let hasInitialSnapshot = false;
+    let remoteSaveTimer = null;
+
+    /* ===========================
        STORAGE
     ============================ */
-    const STORAGE_KEY = "f1_duel_tracker_grid_v3"; // v3: résultats GP pour tous les pilotes
+    const STORAGE_KEY = "f1_duel_tracker_grid_v3";
     const POINTS = [25,18,15,12,10,8,6,4,2,1];
 
     /* ===========================
@@ -1392,7 +1454,6 @@
       { id:"hulkenberg", name:"Nico Hülkenberg", natCode:"de", natImg:"https://flagcdn.com/w80/de.png", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
       { id:"albon", name:"Alexander Albon", natCode:"th", natImg:"https://flagcdn.com/w80/th.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
       { id:"gasly", name:"Pierre Gasly", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" },
-
       { id:"sainz", name:"Carlos Sainz Jr.", natCode:"es", natImg:"https://flagcdn.com/w80/es.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
       { id:"ocon", name:"Esteban Ocon", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" },
       { id:"hadjar", name:"Isack Hadjar", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
@@ -1426,34 +1487,6 @@
       document.documentElement.style.setProperty("--gp-accent", hex || "#E10600");
       document.documentElement.style.setProperty("--gp-accent-soft", hexToRgba(hex || "#E10600", 0.18));
       document.documentElement.style.setProperty("--gp-accent-border", hexToRgba(hex || "#E10600", 0.42));
-    }
-
-    /* ===========================
-       Storage
-    ============================ */
-    function load(){
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){
-        try{ appData = JSON.parse(raw); }catch(e){ console.warn(e); }
-      }
-      if(!appData.championships?.length){
-        createNewChampionship("Saison 1");
-      }
-      if(!appData.activeId){
-        appData.activeId = appData.championships[0].id;
-      }
-      appData.championships.forEach(ch => ensureCalendar(ch));
-    }
-
-    function save(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-      refreshAll();
-    }
-
-    function resetAll(){
-      if(!confirm("Supprimer toutes les données locales ?")) return;
-      localStorage.removeItem(STORAGE_KEY);
-      location.reload();
     }
 
     /* ===========================
@@ -1496,6 +1529,12 @@
       };
     }
 
+    function computePointsFromPos(pos){
+      const p = parseInt(pos, 10);
+      if(!Number.isFinite(p) || p < 1 || p > 20) return 0;
+      return (p <= 10) ? POINTS[p - 1] : 0;
+    }
+
     function ensureCalendar(champ){
       if(!Array.isArray(champ.races)) champ.races = [];
       if(champ.races.length === 0){
@@ -1503,27 +1542,29 @@
         return;
       }
 
-      // Migration / normalisation
       const templateById = new Map(CIRCUITS_2025.map((c,i)=>[c.id, buildRaceFromCircuit(c,i)]));
 
       champ.races = champ.races.map((r, idx) => {
         const t = templateById.get(r.id) || buildRaceFromCircuit(CIRCUITS_2025[idx] || CIRCUITS_2025[0], idx);
         const out = { ...t, ...r };
 
-        // Cas ancien format (results.raph.pos etc.)
+        // Migration ancien format : results.raph.pos / bestLap etc.
         if(out.results && (out.results.raph || out.results.moise) && (out.results.raph.pos !== undefined || out.results.moise.pos !== undefined)){
           const fresh = buildResultsSkeleton();
 
           const oldR = out.results.raph || {};
           const oldM = out.results.moise || {};
 
-          fresh.raph.racePos = Number.isFinite(parseInt(oldR.pos,10)) ? parseInt(oldR.pos,10) : null;
+          const rPosOld = Number.isFinite(parseInt(oldR.pos,10)) ? parseInt(oldR.pos,10) : null;
+          const mPosOld = Number.isFinite(parseInt(oldM.pos,10)) ? parseInt(oldM.pos,10) : null;
+
+          fresh.raph.racePos = rPosOld;
           fresh.raph.qualTime = (oldR.qualTime || "");
           fresh.raph.gapToP1 = (oldR.gapToP1 || "");
           fresh.raph.bestRaceTime = (oldR.bestRaceTime || oldR.bestLap || "");
           fresh.raph.pts = computePointsFromPos(fresh.raph.racePos);
 
-          fresh.moise.racePos = Number.isFinite(parseInt(oldM.pos,10)) ? parseInt(oldM.pos,10) : null;
+          fresh.moise.racePos = mPosOld;
           fresh.moise.qualTime = (oldM.qualTime || "");
           fresh.moise.gapToP1 = (oldM.gapToP1 || "");
           fresh.moise.bestRaceTime = (oldM.bestRaceTime || oldM.bestLap || "");
@@ -1534,10 +1575,11 @@
           return out;
         }
 
-        // Nouveau format mais incomplet
-        const fresh = buildResultsSkeleton();
+        // Nouveau format : normalisation (ajoute pilotes manquants + recalc pts)
+        const skeleton = buildResultsSkeleton();
         if(!out.results || typeof out.results !== "object") out.results = {};
-        Object.keys(fresh).forEach(id => {
+
+        Object.keys(skeleton).forEach(id => {
           out.results[id] = { ...emptyDriverResult(), ...(out.results[id] || {}) };
           out.results[id].pts = computePointsFromPos(out.results[id].racePos);
         });
@@ -1547,7 +1589,129 @@
       });
     }
 
-    function createNewChampionship(forcedName=null){
+    /* ===========================
+       Local load/save
+    ============================ */
+    function loadLocal(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{ appData = JSON.parse(raw); }catch(e){ console.warn(e); }
+      }
+      if(!appData || typeof appData !== "object") appData = { championships: [], activeId: null };
+      if(!Array.isArray(appData.championships)) appData.championships = [];
+
+      if(!appData.championships.length){
+        createNewChampionship("Saison 1", { skipSave:true }); // évite save() avant init
+      }
+      if(!appData.activeId){
+        appData.activeId = appData.championships[0].id;
+      }
+      appData.championships.forEach(ch => ensureCalendar(ch));
+    }
+
+    function saveLocal(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    /* ===========================
+       Firestore sync (real-time)
+    ============================ */
+    function scheduleRemoteSave(){
+      if(isApplyingRemote) return;
+      if(!hasInitialSnapshot) return; // évite d’écrire avant d’avoir vu l’état remote
+      clearTimeout(remoteSaveTimer);
+
+      setSyncStatus("sync…");
+      remoteSaveTimer = setTimeout(async () => {
+        try{
+          await docRef.set({
+            appData,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          setSyncStatus("ok");
+        }catch(err){
+          console.error(err);
+          setSyncStatus("erreur");
+        }
+      }, 350);
+    }
+
+    function applyRemoteAppData(remote){
+      isApplyingRemote = true;
+      try{
+        appData = remote;
+        if(!appData || typeof appData !== "object") appData = { championships: [], activeId: null };
+        if(!Array.isArray(appData.championships)) appData.championships = [];
+        if(!appData.championships.length){
+          // si remote vide/cassé → reconstruire une saison 1
+          createNewChampionship("Saison 1", { skipSave:true });
+        }
+        if(!appData.activeId){
+          appData.activeId = appData.championships[0].id;
+        }
+        appData.championships.forEach(ch => ensureCalendar(ch));
+        saveLocal();
+        refreshAll();
+      } finally {
+        isApplyingRemote = false;
+      }
+    }
+
+    function initFirestoreListener(){
+      setSyncStatus("sync…");
+      docRef.onSnapshot((snap) => {
+        hasInitialSnapshot = true;
+
+        if(!snap.exists){
+          // Aucun doc remote → on pousse notre local (une fois)
+          scheduleRemoteSave();
+          setSyncStatus("ok");
+          return;
+        }
+
+        const data = snap.data() || {};
+        if(data && data.appData){
+          applyRemoteAppData(data.appData);
+          setSyncStatus("ok");
+        } else {
+          // doc existe mais pas de données → pousser local
+          scheduleRemoteSave();
+          setSyncStatus("ok");
+        }
+      }, (err) => {
+        console.error(err);
+        setSyncStatus("erreur");
+        hasInitialSnapshot = true; // on laisse l’app marcher en local
+      });
+    }
+
+    /* ===========================
+       Save global (local + remote + UI)
+    ============================ */
+    function save(){
+      saveLocal();
+      refreshAll();
+      scheduleRemoteSave();
+    }
+
+    async function resetAll(){
+      if(!confirm("Supprimer toutes les données de cette SALLE (pour tout le monde) ?")) return;
+      try{
+        await docRef.delete();
+      }catch(e){
+        // si permissions empêchent delete, on écrase avec une base vide
+        try{
+          await docRef.set({ appData: { championships: [], activeId: null }, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+        }catch(err){ console.error(err); }
+      }
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    /* ===========================
+       Championnats
+    ============================ */
+    function createNewChampionship(forcedName=null, opts={ skipSave:false }){
       const name = forcedName ?? prompt("Nom du championnat :");
       if(!name) return;
 
@@ -1561,7 +1725,8 @@
 
       appData.championships.push(champ);
       appData.activeId = id;
-      save();
+
+      if(!opts.skipSave) save();
     }
 
     function duplicateChampionship(){
@@ -1615,12 +1780,6 @@
     /* ===========================
        Points / stats
     ============================ */
-    function computePointsFromPos(pos){
-      const p = parseInt(pos, 10);
-      if(!Number.isFinite(p) || p < 1 || p > 20) return 0;
-      return (p <= 10) ? POINTS[p - 1] : 0;
-    }
-
     function seasonPoints(driverId, champ){
       let total = 0;
       champ.races.forEach(r => {
@@ -1784,7 +1943,10 @@
             <div style="min-width:0;">
               <div class="pilot-name" style="text-transform:uppercase; letter-spacing:1px;">${t.teamName}</div>
               <div class="pilot-meta">
-                ${t.teamKey === "ferrari" ? `<span class="sf-badge">SF</span><span style="font-weight:800;">Raphaël + Moïse</span>` : `<span style="opacity:.8;">•</span><span style="font-weight:800;">Constructeurs</span>`}
+                ${t.teamKey === "ferrari"
+                  ? `<span class="sf-badge">SF</span><span style="font-weight:800;">Raphaël + Moïse</span>`
+                  : `<span style="opacity:.8;">•</span><span style="font-weight:800;">Constructeurs</span>`
+                }
               </div>
             </div>
           </div>
@@ -2114,6 +2276,7 @@
     function exportData(){
       document.getElementById("dataBox").value = JSON.stringify(appData, null, 2);
     }
+
     function importData(){
       const box = document.getElementById("dataBox");
       if(!box.value.trim()){
@@ -2125,8 +2288,10 @@
         if(!parsed?.championships?.length) throw new Error("bad");
         appData = parsed;
         appData.championships.forEach(ch => ensureCalendar(ch));
+        if(!appData.activeId) appData.activeId = appData.championships[0].id;
+        currentRaceIndex = 0;
         save();
-        alert("Import OK !");
+        alert("Import OK ! (La salle est synchronisée)");
       }catch(e){
         alert("Import impossible : JSON invalide.");
       }
@@ -2182,8 +2347,14 @@
        Init
     ============================ */
     window.addEventListener("load", () => {
-      load();
+      // 1) charge le cache local (instant)
+      loadLocal();
+
+      // 2) UI
       refreshAll();
+
+      // 3) lance la sync Firestore (temps réel)
+      initFirestoreListener();
     });
   </script>
 </body>
