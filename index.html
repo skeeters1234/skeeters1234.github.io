@@ -1059,7 +1059,7 @@
       <div class="nav-item" onclick="switchTab('data')">Données</div>
     </div>
 
-    <!-- Salle partagée (FireStore) -->
+    <!-- Salle partagée (Firestore) -->
     <div class="room-pill" title="Même # = mêmes données en temps réel">
       <span class="dot"></span>
       <span>SALLE :</span>
@@ -1369,9 +1369,9 @@
   </div>
 
   <script>
-    /* ===========================
-       Firebase + ROOM (shared)
-    ============================ */
+    /* =========================================================
+       FIREBASE + ROOM (Bloc A)
+    ========================================================= */
     const firebaseConfig = {
       apiKey: "AIzaSyD2WiYTm0QuVuTQZiLLrCNoG3ERdpGNuu0",
       authDomain: "f1-duel-tracker.firebaseapp.com",
@@ -1384,7 +1384,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Salle partagée via l’URL : .../index.html#duel2025
+    // Salle partagée via l’URL : .../#duel2025
     const ROOM_ID = (location.hash || "#default").replace("#","").trim() || "default";
     const docRef = db.collection("championships").doc(ROOM_ID);
 
@@ -1404,15 +1404,15 @@
     let hasInitialSnapshot = false;
     let remoteSaveTimer = null;
 
-    /* ===========================
+    /* =========================================================
        STORAGE
-    ============================ */
+    ========================================================= */
     const STORAGE_KEY = "f1_duel_tracker_grid_v3";
     const POINTS = [25,18,15,12,10,8,6,4,2,1];
 
-    /* ===========================
+    /* =========================================================
        CALENDRIER 2025
-    ============================ */
+    ========================================================= */
     const CIRCUITS_2025 = [
       { id:"melbourne", name:"Melbourne Grand Prix Circuit", country:"Australie", countryCode:"au", city:"Melbourne", dates:"14–16 mars 2025", laps:58, turns:16, lengthKm:"5.303", drs:"2", tags:["Rapide","Technique"], accent:"#2D7DFF" },
       { id:"shanghai", name:"Shanghai International Circuit", country:"Chine", countryCode:"cn", city:"Shanghai", dates:"21–23 mars 2025", laps:56, turns:16, lengthKm:"5.451", drs:"2", tags:["Technique"], accent:"#E10600" },
@@ -1440,9 +1440,9 @@
       { id:"abudhabi", name:"Yas Marina Circuit", country:"Émirats Arabes Unis", countryCode:"ae", city:"Abu Dhabi", dates:"05–07 décembre 2025", laps:58, turns:16, lengthKm:"5.281", drs:"2", tags:["Technique"], accent:"#2D7DFF" }
     ];
 
-    /* ===========================
-       Grille 20 pilotes
-    ============================ */
+    /* =========================================================
+       GRILLE 20 PILOTES
+    ========================================================= */
     const GRID_DRIVERS = [
       { id:"verstappen", name:"Max Verstappen", natCode:"nl", natImg:"https://flagcdn.com/w80/nl.png", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
       { id:"norris", name:"Lando Norris", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
@@ -1466,15 +1466,15 @@
       { id:"colapinto", name:"Franco Colapinto", natCode:"ar", natImg:"https://flagcdn.com/w80/ar.png", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" }
     ];
 
-    /* ===========================
-       App state
-    ============================ */
+    /* =========================================================
+       APP STATE
+    ========================================================= */
     let appData = { championships: [], activeId: null };
     let currentRaceIndex = 0;
 
-    /* ===========================
-       Utils couleur
-    ============================ */
+    /* =========================================================
+       UTILS COULEUR
+    ========================================================= */
     function hexToRgba(hex, a){
       const h = (hex || "").replace("#","");
       if(h.length !== 6) return `rgba(225,6,0,${a})`;
@@ -1489,16 +1489,16 @@
       document.documentElement.style.setProperty("--gp-accent-border", hexToRgba(hex || "#E10600", 0.42));
     }
 
-    /* ===========================
-       Championnats / résultats
-    ============================ */
+    /* =========================================================
+       CHAMPIONNATS / RÉSULTATS
+    ========================================================= */
     function emptyDriverResult(){
       return {
-        qualPos: null,        // raph/moise
-        qualTime: "",         // raph/moise
-        racePos: null,        // tout le monde
-        gapToP1: "",          // raph/moise (format libre)
-        bestRaceTime: "",     // raph/moise (meilleur temps en course)
+        qualPos: null,
+        qualTime: "",
+        racePos: null,
+        gapToP1: "",
+        bestRaceTime: "",
         pts: 0
       };
     }
@@ -1575,7 +1575,7 @@
           return out;
         }
 
-        // Nouveau format : normalisation (ajoute pilotes manquants + recalc pts)
+        // Nouveau format : normalisation
         const skeleton = buildResultsSkeleton();
         if(!out.results || typeof out.results !== "object") out.results = {};
 
@@ -1589,9 +1589,9 @@
       });
     }
 
-    /* ===========================
-       Local load/save
-    ============================ */
+    /* =========================================================
+       LOCAL LOAD/SAVE
+    ========================================================= */
     function loadLocal(){
       const raw = localStorage.getItem(STORAGE_KEY);
       if(raw){
@@ -1601,7 +1601,7 @@
       if(!Array.isArray(appData.championships)) appData.championships = [];
 
       if(!appData.championships.length){
-        createNewChampionship("Saison 1", { skipSave:true }); // évite save() avant init
+        createNewChampionship("Saison 1", { skipSave:true });
       }
       if(!appData.activeId){
         appData.activeId = appData.championships[0].id;
@@ -1613,15 +1613,16 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
     }
 
-    /* ===========================
-       Firestore sync (real-time)
-    ============================ */
+    /* =========================================================
+       FIRESTORE SYNC (Bloc C)
+    ========================================================= */
     function scheduleRemoteSave(){
       if(isApplyingRemote) return;
-      if(!hasInitialSnapshot) return; // évite d’écrire avant d’avoir vu l’état remote
-      clearTimeout(remoteSaveTimer);
+      if(!hasInitialSnapshot) return;
 
+      clearTimeout(remoteSaveTimer);
       setSyncStatus("sync…");
+
       remoteSaveTimer = setTimeout(async () => {
         try{
           await docRef.set({
@@ -1642,13 +1643,14 @@
         appData = remote;
         if(!appData || typeof appData !== "object") appData = { championships: [], activeId: null };
         if(!Array.isArray(appData.championships)) appData.championships = [];
+
         if(!appData.championships.length){
-          // si remote vide/cassé → reconstruire une saison 1
           createNewChampionship("Saison 1", { skipSave:true });
         }
         if(!appData.activeId){
           appData.activeId = appData.championships[0].id;
         }
+
         appData.championships.forEach(ch => ensureCalendar(ch));
         saveLocal();
         refreshAll();
@@ -1659,12 +1661,12 @@
 
     function initFirestoreListener(){
       setSyncStatus("sync…");
+
       docRef.onSnapshot((snap) => {
         hasInitialSnapshot = true;
 
         if(!snap.exists){
-          // Aucun doc remote → on pousse notre local (une fois)
-          scheduleRemoteSave();
+          scheduleRemoteSave(); // push le local
           setSyncStatus("ok");
           return;
         }
@@ -1674,20 +1676,19 @@
           applyRemoteAppData(data.appData);
           setSyncStatus("ok");
         } else {
-          // doc existe mais pas de données → pousser local
           scheduleRemoteSave();
           setSyncStatus("ok");
         }
       }, (err) => {
         console.error(err);
         setSyncStatus("erreur");
-        hasInitialSnapshot = true; // on laisse l’app marcher en local
+        hasInitialSnapshot = true; // l’app continue en local
       });
     }
 
-    /* ===========================
-       Save global (local + remote + UI)
-    ============================ */
+    /* =========================================================
+       SAVE GLOBAL (Bloc B)
+    ========================================================= */
     function save(){
       saveLocal();
       refreshAll();
@@ -1696,21 +1697,27 @@
 
     async function resetAll(){
       if(!confirm("Supprimer toutes les données de cette SALLE (pour tout le monde) ?")) return;
+
       try{
         await docRef.delete();
       }catch(e){
-        // si permissions empêchent delete, on écrase avec une base vide
         try{
-          await docRef.set({ appData: { championships: [], activeId: null }, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
-        }catch(err){ console.error(err); }
+          await docRef.set({
+            appData: { championships: [], activeId: null },
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge:true });
+        }catch(err){
+          console.error(err);
+        }
       }
+
       localStorage.removeItem(STORAGE_KEY);
       location.reload();
     }
 
-    /* ===========================
-       Championnats
-    ============================ */
+    /* =========================================================
+       CHAMPIONNATS
+    ========================================================= */
     function createNewChampionship(forcedName=null, opts={ skipSave:false }){
       const name = forcedName ?? prompt("Nom du championnat :");
       if(!name) return;
@@ -1777,9 +1784,9 @@
       };
     }
 
-    /* ===========================
-       Points / stats
-    ============================ */
+    /* =========================================================
+       POINTS / STATS
+    ========================================================= */
     function seasonPoints(driverId, champ){
       let total = 0;
       champ.races.forEach(r => {
@@ -1797,18 +1804,14 @@
         const res = r.results?.[driverId];
         const pos = res?.racePos ?? null;
         if(pos === null || pos === undefined) return;
-        out.push({
-          gp: `${r.country} • ${r.name}`,
-          pos,
-          pts: res?.pts ?? 0
-        });
+        out.push({ gp: `${r.country} • ${r.name}`, pos, pts: res?.pts ?? 0 });
       });
       return out;
     }
 
-    /* ===========================
-       RENDER: pilots table
-    ============================ */
+    /* =========================================================
+       RENDER: PILOTS
+    ========================================================= */
     function renderPilotsTable(){
       const champ = getActiveChamp();
       const body = document.getElementById("pilotsBody");
@@ -1816,10 +1819,7 @@
 
       const orderMode = document.getElementById("orderSelect").value;
 
-      let list = GRID_DRIVERS.map(d => ({
-        ...d,
-        points: seasonPoints(d.id, champ)
-      }));
+      let list = GRID_DRIVERS.map(d => ({ ...d, points: seasonPoints(d.id, champ) }));
 
       if(orderMode === "points"){
         const originalIndex = new Map(GRID_DRIVERS.map((d,i)=>[d.id,i]));
@@ -1903,9 +1903,9 @@
       return (a + b).toUpperCase();
     }
 
-    /* ===========================
+    /* =========================================================
        CONSTRUCTORS
-    ============================ */
+    ========================================================= */
     function renderConstructorsTable(){
       const champ = getActiveChamp();
       const body = document.getElementById("constructorsBody");
@@ -1958,9 +1958,9 @@
       });
     }
 
-    /* ===========================
-       Tooltip (détail points)
-    ============================ */
+    /* =========================================================
+       TOOLTIP
+    ========================================================= */
     const tt = () => document.getElementById("tooltip");
 
     function onPointsEnterDriver(e){
@@ -2021,9 +2021,9 @@
       node.style.top = y + "px";
     }
 
-    /* ===========================
+    /* =========================================================
        CALENDRIER
-    ============================ */
+    ========================================================= */
     function populateGPSelect(){
       const champ = getActiveChamp();
       const sel = document.getElementById("gpSelect");
@@ -2172,9 +2172,9 @@
       document.getElementById("miniMoise").innerHTML = mk("Moïse", r.results?.moise);
     }
 
-    /* ===========================
-       GP Modal (saisie)
-    ============================ */
+    /* =========================================================
+       MODAL GP (SAISIE)
+    ========================================================= */
     function openRaceModal(i){
       if(typeof i === "number") currentRaceIndex = i;
       const champ = getActiveChamp();
@@ -2270,9 +2270,9 @@
       closeRaceModal();
     }
 
-    /* ===========================
-       Export / Import
-    ============================ */
+    /* =========================================================
+       EXPORT / IMPORT
+    ========================================================= */
     function exportData(){
       document.getElementById("dataBox").value = JSON.stringify(appData, null, 2);
     }
@@ -2297,9 +2297,9 @@
       }
     }
 
-    /* ===========================
-       Tabs
-    ============================ */
+    /* =========================================================
+       TABS
+    ========================================================= */
     function switchTab(id){
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
@@ -2312,9 +2312,9 @@
       if(id === "data") nav[3].classList.add("active");
     }
 
-    /* ===========================
-       Refresh
-    ============================ */
+    /* =========================================================
+       REFRESH
+    ========================================================= */
     function refreshAll(){
       populateChampionshipSelect();
       populateGPSelect();
@@ -2343,17 +2343,17 @@
       if(e.key === "ArrowRight"){ e.preventDefault(); nextGP(); }
     });
 
-    /* ===========================
-       Init
-    ============================ */
+    /* =========================================================
+       INIT
+    ========================================================= */
     window.addEventListener("load", () => {
-      // 1) charge le cache local (instant)
+      // 1) cache local immédiat
       loadLocal();
 
       // 2) UI
       refreshAll();
 
-      // 3) lance la sync Firestore (temps réel)
+      // 3) sync Firestore temps réel
       initFirestoreListener();
     });
   </script>
