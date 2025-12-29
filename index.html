@@ -1155,6 +1155,160 @@
           letter-spacing: 0.5px;
         }
       }
+    /* ===========================
+   STATS UI
+=========================== */
+.stats-grid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 14px;
+}
+.stats-card{
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.22);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  min-width:0;
+}
+.stats-card.full{ grid-column: 1 / -1; }
+
+.stats-card-head{
+  padding: 14px 16px;
+  background: rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.stats-card-head strong{
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: .95rem;
+}
+.stats-muted{
+  color: var(--muted);
+  font-weight: 800;
+  font-size: .85rem;
+}
+.chart-wrap{
+  padding: 12px 16px 16px;
+  min-width:0;
+}
+.chart-wrap canvas{
+  width: 100% !important;
+  height: 320px !important;
+}
+
+/* Duel layout */
+.duel-grid{
+  display:grid;
+  grid-template-columns: 340px minmax(0,1fr);
+  gap: 12px;
+  padding: 12px 16px 16px;
+}
+.duel-kpis{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  min-width:0;
+}
+.kpi{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.28);
+  padding: 12px;
+}
+.kpi .k{
+  color: var(--muted);
+  font-weight: 900;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  font-size: .78rem;
+}
+.kpi .v{
+  margin-top: 6px;
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+/* ===========================
+   FIX chevauchement tables < 700px
+   (Pilotes + Constructeurs)
+=========================== */
+@media (max-width: 700px){
+  /* cache l'entête, on passe en “cartes” flex-wrap */
+  #pilots .ea-row.ea-header,
+  #constructors .ea-row.ea-header{ display:none; }
+
+  #pilots .ea-row.ea-data,
+  #constructors .ea-row.ea-data{
+    display:flex !important;
+    flex-wrap:wrap;
+    gap: 10px;
+    align-items:center;
+  }
+
+  #pilots .ea-row.ea-data .rank{
+    flex: 0 0 56px;
+    font-size: 1.25rem;
+    text-align:left;
+  }
+  #pilots .ea-row.ea-data .pilot-cell{
+    flex: 1 1 calc(100% - 70px);
+    min-width: 220px;
+  }
+  #pilots .pilot-name{ font-size: .98rem; }
+  #pilots .pilot-meta{ font-size: .78rem; }
+
+  #pilots .ea-row.ea-data .nat{
+    flex: 0 0 64px;
+    justify-content:flex-start;
+  }
+  #pilots .ea-row.ea-data .team{
+    flex: 1 1 auto;
+    justify-content:flex-start;
+    font-size: .72rem;
+    letter-spacing: .8px;
+  }
+  #pilots .ea-row.ea-data .points{
+    flex: 1 1 100%;
+    justify-content:flex-start;
+  }
+  #pilots .points-box{ width: 140px; }
+
+  /* Constructeurs : rang + équipe + points */
+  #constructors .ea-row.ea-data .rank{
+    flex: 0 0 56px;
+    font-size: 1.25rem;
+    text-align:left;
+  }
+  #constructors .ea-row.ea-data .pilot-cell{
+    flex: 1 1 calc(100% - 70px);
+    min-width: 220px;
+  }
+  #constructors .pilot-name{ font-size: .95rem; }
+  #constructors .pilot-meta{ font-size: .78rem; }
+
+  #constructors .ea-row.ea-data .points{
+    flex: 1 1 100%;
+    justify-content:flex-start;
+  }
+  #constructors .points-box{ width: 160px; }
+}
+
+/* Responsive stats */
+@media (max-width: 1100px){
+  .stats-grid{ grid-template-columns: 1fr; }
+  .stats-card.full{ grid-column:auto; }
+  .duel-grid{ grid-template-columns: 1fr; }
+  .chart-wrap canvas{ height: 300px !important; }
+}
+@media (max-width: 520px){
+  .chart-wrap canvas{ height: 260px !important; }
+}
 
   </style>
 </head>
@@ -1365,6 +1519,108 @@
                 Astuce : mets tes images pays (rondes) dans <b>assets/circuits/flags/xx.png</b> (ex: <b>au.png</b>) et tes maps dans <b>assets/circuits/maps/raceId.png</b>.
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- STATS -->
+    <section id="stats" class="section">
+      <div class="title-row">
+        <div>
+          <h2>Stats – Graphiques</h2>
+          <div class="subtitle">
+            Courbes pilotes / constructeurs, duel Raphaël vs Moïse, delta qualif → course.
+          </div>
+        </div>
+      </div>
+    
+      <div class="stats-grid">
+        <!-- Pilotes: points cumulés -->
+        <div class="stats-card full">
+          <div class="stats-card-head">
+            <strong>Points cumulés – Pilotes (Top + Raphaël/Moïse)</strong>
+            <span class="stats-muted">X = GP • Y = points cumulés</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartPilotsCumulative"></canvas>
+          </div>
+        </div>
+    
+        <!-- Pilotes: positions en course -->
+        <div class="stats-card">
+          <div class="stats-card-head">
+            <strong>Positions en course – Raphaël / Moïse</strong>
+            <span class="stats-muted">Y inversé (P1 en haut)</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartRaphMoisePositions"></canvas>
+          </div>
+        </div>
+    
+        <!-- Radar -->
+        <div class="stats-card">
+          <div class="stats-card-head">
+            <strong>Profil (Radar) – Raphaël vs Moïse</strong>
+            <span class="stats-muted">Scores 0–100</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartRadar"></canvas>
+          </div>
+        </div>
+    
+        <!-- Duel -->
+        <div class="stats-card full">
+          <div class="stats-card-head">
+            <strong>Duel Raphaël vs Moïse</strong>
+            <span class="stats-muted">Écart de points par GP (Raphaël − Moïse)</span>
+          </div>
+    
+          <div class="duel-grid">
+            <div class="duel-kpis">
+              <div class="kpi"><div class="k">Total Raphaël</div><div class="v" id="kpiRaphPts">—</div></div>
+              <div class="kpi"><div class="k">Total Moïse</div><div class="v" id="kpiMoisePts">—</div></div>
+              <div class="kpi"><div class="k">Raphaël devant</div><div class="v" id="kpiRaphWins">—</div></div>
+              <div class="kpi"><div class="k">Moïse devant</div><div class="v" id="kpiMoiseWins">—</div></div>
+              <div class="kpi"><div class="k">Égalités</div><div class="v" id="kpiDraws">—</div></div>
+              <div class="kpi"><div class="k">GP comparables</div><div class="v" id="kpiComparable">—</div></div>
+            </div>
+    
+            <div class="chart-wrap">
+              <canvas id="chartDuelDeltaPoints"></canvas>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Delta qualif-course -->
+        <div class="stats-card full">
+          <div class="stats-card-head">
+            <strong>Delta Qualif → Course (CoursePos − QualifPos)</strong>
+            <span class="stats-muted">+ = perd des places • − = gagne des places</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartDeltaQualiCourse"></canvas>
+          </div>
+        </div>
+    
+        <!-- Constructeurs: points cumulés -->
+        <div class="stats-card full">
+          <div class="stats-card-head">
+            <strong>Points cumulés – Constructeurs</strong>
+            <span class="stats-muted">Ferrari = Raphaël + Moïse</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartTeamsCumulative"></canvas>
+          </div>
+        </div>
+    
+        <!-- Race chart ranks -->
+        <div class="stats-card full">
+          <div class="stats-card-head">
+            <strong>Classement “vivant” – Rang des constructeurs</strong>
+            <span class="stats-muted">Y inversé (rang 1 en haut)</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chartTeamsRank"></canvas>
           </div>
         </div>
       </div>
