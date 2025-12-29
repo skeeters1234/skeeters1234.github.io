@@ -1103,6 +1103,57 @@
         font-size: 1rem;
       }
     }
+          /* =========================================
+         Réduction typographie (Pilotes + Écuries)
+         -> à coller TOUT EN BAS du <style>
+      ========================================= */
+      
+      /* Taille “intelligente” sur toutes tailles d’écran */
+      #pilots .pilot-name{
+        font-size: clamp(0.90rem, 1.05vw, 1.02rem);
+        letter-spacing: 0.2px;
+      }
+      #pilots .pilot-meta{
+        font-size: clamp(0.74rem, 0.95vw, 0.86rem);
+      }
+      
+      #pilots .team{
+        font-size: clamp(0.66rem, 0.85vw, 0.78rem);
+        letter-spacing: 0.7px;
+      }
+      
+      /* Constructeurs : nom d’écurie + meta plus compacts */
+      #constructors .pilot-name{
+        font-size: clamp(0.92rem, 1.1vw, 1.04rem);
+        letter-spacing: 0.8px; /* tu peux baisser à 0.6 si tu veux encore + compact */
+      }
+      #constructors .pilot-meta{
+        font-size: clamp(0.72rem, 0.95vw, 0.84rem);
+      }
+      
+      /* Bonus : évite les débordements sur petites largeurs */
+      #pilots .pilot-name,
+      #constructors .pilot-name{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+      
+      /* Encore plus petit sous 700px (là où tu avais le chevauchement) */
+      @media (max-width: 700px){
+        #pilots .pilot-name{ font-size: 0.88rem; }
+        #pilots .pilot-meta{ font-size: 0.74rem; }
+      
+        #constructors .pilot-name{ font-size: 0.90rem; }
+        #constructors .pilot-meta{ font-size: 0.74rem; }
+      
+        #pilots .team{
+          font-size: 0.66rem;
+          letter-spacing: 0.5px;
+        }
+      }
+
   </style>
 </head>
 
