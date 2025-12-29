@@ -2673,6 +2673,8 @@
       if(id === "constructors") nav[1].classList.add("active");
       if(id === "calendar") nav[2].classList.add("active");
       if(id === "data") nav[3].classList.add("active");
+      if(id === "stats") nav[4].classList.add("active");
+
     }
 
     /* ===========================
@@ -2685,6 +2687,7 @@
       renderConstructorsTable();
       renderCalendarCard();
       renderGPSidebar();
+      refreshStats(); // <-- AJOUT
     }
 
     document.getElementById("orderSelect").addEventListener("change", () => {
@@ -2705,6 +2708,463 @@
       if(e.key === "ArrowLeft"){ e.preventDefault(); prevGP(); }
       if(e.key === "ArrowRight"){ e.preventDefault(); nextGP(); }
     });
+            /* ===========================
+         STATS / CHARTS (Chart.js)
+      =========================== */
+      const charts = {
+        pilotsCum: null,
+        raphMoisePos: null,
+        radar: null,
+        duelDeltaPts: null,
+        deltaQualiCourse: null,
+        teamsCum: null,
+        teamsRank: null
+      };
+      
+      function destroyChart(ch){
+        if(ch && typeof ch.destroy === "function") ch.destroy();
+      }
+      
+      function roundLabels(champ){
+        if(!champ?.races?.length) return [];
+        return champ.races.map(r => `R${String(r.round).padStart(2,"0")}`);
+      }
+      
+      function getDoneRacePoints(r, driverId){
+        const pts = r?.results?.[driverId]?.pts;
+        return Number.isFinite(pts) ? pts : 0;
+      }
+      
+      function getRacePos(r, driverId){
+        const pos = r?.results?.[driverId]?.racePos;
+        const p = parseInt(pos, 10);
+        return Number.isFinite(p) ? p : null;
+      }
+      
+      function getQualiPos(r, driverId){
+        const pos = r?.results?.[driverId]?.qualPos;
+        const p = parseInt(pos, 10);
+        return Number.isFinite(p) ? p : null;
+      }
+      
+      function teamsList(){
+        const by = new Map();
+        GRID_DRIVERS.forEach(d => {
+          if(!by.has(d.teamKey)){
+            by.set(d.teamKey, { teamKey:d.teamKey, teamName:d.teamName, teamAbbr:d.teamAbbr });
+          }
+        });
+        return Array.from(by.values());
+      }
+      
+      function teamPointsForRace(r, teamKey){
+        let sum = 0;
+        GRID_DRIVERS.forEach(d => {
+          if(d.teamKey !== teamKey) return;
+          sum += (r?.results?.[d.id]?.pts ?? 0);
+        });
+        return sum;
+      }
+      
+      function topDriversForCum(champ, topN=5){
+        const totals = GRID_DRIVERS.map(d => ({ id:d.id, name:d.name, total: seasonPoints(d.id, champ) }));
+        totals.sort((a,b)=>b.total-a.total);
+      
+        const must = new Set(["raph","moise"]);
+        const out = [];
+      
+        // Top N
+        totals.slice(0, topN).forEach(x => out.push(x.id));
+        // + toujours raph/moise
+        must.forEach(id => { if(!out.includes(id)) out.push(id); });
+      
+        // + garder l'ordre : d'abord topN (déjà), puis raph/moise si ajouté
+        return out;
+      }
+      
+      function buildCumulativeSeries(champ, driverId){
+        let cum = 0;
+        const data = champ.races.map(r => {
+          cum += getDoneRacePoints(r, driverId);
+          return cum;
+        });
+        return data;
+      }
+      
+      function buildPositionsSeries(champ, driverId){
+        return champ.races.map(r => getRacePos(r, driverId));
+      }
+      
+      function stddev(arr){
+        const v = arr.filter(x => Number.isFinite(x));
+        if(v.length <= 1) return 0;
+        const mean = v.reduce((a,b)=>a+b,0)/v.length;
+        const variance = v.reduce((s,x)=>s+Math.pow(x-mean,2),0)/(v.length-1);
+        return Math.sqrt(variance);
+      }
+      
+      function driverRadarStats(champ, driverId){
+        const races = champ.races;
+      
+        const pts = races.map(r => (r?.results?.[driverId]?.pts ?? 0));
+        const totalPts = pts.reduce((a,b)=>a+(Number.isFinite(b)?b:0),0);
+      
+        const positions = races.map(r => getRacePos(r, driverId)).filter(x => Number.isFinite(x));
+        const n = positions.length;
+      
+        const avgPts = races.length ? (totalPts / races.length) : 0;
+      
+        const bestPos = n ? Math.min(...positions) : null;
+        const top10 = positions.filter(p => p <= 10).length;
+        const podiums = positions.filter(p => p <= 3).length;
+      
+        // Scores 0-100
+        const avgPtsScore = Math.max(0, Math.min(100, (avgPts/25)*100));
+        const peakScore = bestPos ? Math.max(0, Math.min(100, ((21-bestPos)/20)*100)) : 0;
+      
+        const sd = stddev(positions);          // plus petit = mieux
+        const regularityScore = Math.max(0, Math.min(100, 100 - (sd/6)*100)); // 6 ≈ “mauvais” => 0
+      
+        const top10Score = n ? (top10/n)*100 : 0;
+        const podiumScore = n ? (podiums/n)*100 : 0;
+      
+        return {
+          totalPts,
+          nComparable: n,
+          avgPtsScore, peakScore, regularityScore, top10Score, podiumScore
+        };
+      }
+      
+      function duelStats(champ){
+        let rWins = 0, mWins = 0, draws = 0, comparable = 0;
+        champ.races.forEach(r => {
+          const rp = getRacePos(r, "raph");
+          const mp = getRacePos(r, "moise");
+          if(!rp || !mp) return;
+          comparable++;
+          if(rp < mp) rWins++;
+          else if(mp < rp) mWins++;
+          else draws++;
+        });
+      
+        return {
+          rPts: seasonPoints("raph", champ),
+          mPts: seasonPoints("moise", champ),
+          rWins, mWins, draws, comparable
+        };
+      }
+      
+      function setDuelKpis(champ){
+        const s = duelStats(champ);
+        const byId = (id) => document.getElementById(id);
+      
+        if(byId("kpiRaphPts")) byId("kpiRaphPts").textContent = s.rPts;
+        if(byId("kpiMoisePts")) byId("kpiMoisePts").textContent = s.mPts;
+        if(byId("kpiRaphWins")) byId("kpiRaphWins").textContent = s.rWins;
+        if(byId("kpiMoiseWins")) byId("kpiMoiseWins").textContent = s.mWins;
+        if(byId("kpiDraws")) byId("kpiDraws").textContent = s.draws;
+        if(byId("kpiComparable")) byId("kpiComparable").textContent = s.comparable;
+      }
+      
+      function buildDuelDeltaPoints(champ){
+        // Raphaël − Moïse, par round
+        return champ.races.map(r => {
+          const rp = r?.results?.raph?.pts ?? 0;
+          const mp = r?.results?.moise?.pts ?? 0;
+          return (rp - mp);
+        });
+      }
+      
+      function buildDeltaQualiCourse(champ, driverId){
+        return champ.races.map(r => {
+          const q = getQualiPos(r, driverId);
+          const p = getRacePos(r, driverId);
+          if(!q || !p) return null;
+          return p - q; // + = perd des places
+        });
+      }
+      
+      function buildTeamsCumulative(champ, teamKey){
+        let cum = 0;
+        return champ.races.map(r => {
+          cum += teamPointsForRace(r, teamKey);
+          return cum;
+        });
+      }
+      
+      function buildTeamsRankSeries(champ){
+        const teams = teamsList();
+        const teamKeys = teams.map(t => t.teamKey);
+      
+        // cum points step by step
+        const cumByTeam = new Map(teamKeys.map(k => [k, 0]));
+        const rankSeries = new Map(teamKeys.map(k => [k, []]));
+      
+        champ.races.forEach((r) => {
+          teamKeys.forEach(k => {
+            cumByTeam.set(k, (cumByTeam.get(k) || 0) + teamPointsForRace(r, k));
+          });
+      
+          const sorted = teamKeys
+            .map(k => ({ k, pts: cumByTeam.get(k) || 0 }))
+            .sort((a,b)=> (b.pts - a.pts) || (a.k.localeCompare(b.k)));
+      
+          const rankOf = new Map();
+          sorted.forEach((x,i)=> rankOf.set(x.k, i+1));
+      
+          teamKeys.forEach(k => rankSeries.get(k).push(rankOf.get(k)));
+        });
+      
+        return { teams, rankSeries };
+      }
+      
+      function chartOptionsBase(){
+        return {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "top" }
+          },
+          interaction: { mode: "index", intersect: false }
+        };
+      }
+      
+      function refreshStats(){
+        const champ = getActiveChamp();
+        if(!champ) return;
+        const labels = roundLabels(champ);
+      
+        // 1) Pilotes cumulés
+        {
+          const ids = topDriversForCum(champ, 5);
+          const datasets = ids.map(id => {
+            const d = GRID_DRIVERS.find(x=>x.id===id);
+            return {
+              label: d ? d.name : id,
+              data: buildCumulativeSeries(champ, id),
+              tension: 0.25
+            };
+          });
+      
+          const ctx = document.getElementById("chartPilotsCumulative");
+          if(ctx){
+            if(!charts.pilotsCum){
+              charts.pilotsCum = new Chart(ctx, {
+                type: "line",
+                data: { labels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: {
+                    y: { beginAtZero: true }
+                  }
+                }
+              });
+            } else {
+              charts.pilotsCum.data.labels = labels;
+              charts.pilotsCum.data.datasets = datasets;
+              charts.pilotsCum.update();
+            }
+          }
+        }
+      
+        // 3) Positions en course (Raph/Moïse) Y inversé
+        {
+          const datasets = [
+            { label: "Raphaël", data: buildPositionsSeries(champ, "raph"), tension: 0.25 },
+            { label: "Moïse", data: buildPositionsSeries(champ, "moise"), tension: 0.25 }
+          ];
+      
+          const ctx = document.getElementById("chartRaphMoisePositions");
+          if(ctx){
+            if(!charts.raphMoisePos){
+              charts.raphMoisePos = new Chart(ctx, {
+                type: "line",
+                data: { labels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: {
+                    y: {
+                      reverse: true,
+                      suggestedMin: 1,
+                      suggestedMax: 20,
+                      ticks: { stepSize: 1 }
+                    }
+                  }
+                }
+              });
+            } else {
+              charts.raphMoisePos.data.labels = labels;
+              charts.raphMoisePos.data.datasets = datasets;
+              charts.raphMoisePos.update();
+            }
+          }
+        }
+      
+        // 4) Radar Raphaël vs Moïse
+        {
+          const rr = driverRadarStats(champ, "raph");
+          const rm = driverRadarStats(champ, "moise");
+      
+          const radarLabels = ["Points moyens", "Pic perf", "Régularité", "% Top10", "% Podiums"];
+          const datasets = [
+            {
+              label: "Raphaël",
+              data: [rr.avgPtsScore, rr.peakScore, rr.regularityScore, rr.top10Score, rr.podiumScore]
+            },
+            {
+              label: "Moïse",
+              data: [rm.avgPtsScore, rm.peakScore, rm.regularityScore, rm.top10Score, rm.podiumScore]
+            }
+          ];
+      
+          const ctx = document.getElementById("chartRadar");
+          if(ctx){
+            if(!charts.radar){
+              charts.radar = new Chart(ctx, {
+                type: "radar",
+                data: { labels: radarLabels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: {
+                    r: {
+                      min: 0,
+                      max: 100,
+                      ticks: { stepSize: 20 }
+                    }
+                  }
+                }
+              });
+            } else {
+              charts.radar.data.labels = radarLabels;
+              charts.radar.data.datasets = datasets;
+              charts.radar.update();
+            }
+          }
+        }
+      
+        // 6) Duel + barres delta points
+        {
+          setDuelKpis(champ);
+      
+          const datasets = [{
+            label: "Raphaël − Moïse (pts)",
+            data: buildDuelDeltaPoints(champ)
+          }];
+      
+          const ctx = document.getElementById("chartDuelDeltaPoints");
+          if(ctx){
+            if(!charts.duelDeltaPts){
+              charts.duelDeltaPts = new Chart(ctx, {
+                type: "bar",
+                data: { labels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: { y: { beginAtZero: true } }
+                }
+              });
+            } else {
+              charts.duelDeltaPts.data.labels = labels;
+              charts.duelDeltaPts.data.datasets = datasets;
+              charts.duelDeltaPts.update();
+            }
+          }
+        }
+      
+        // 11) Delta qualif -> course
+        {
+          const datasets = [
+            { label: "Raphaël", data: buildDeltaQualiCourse(champ, "raph") },
+            { label: "Moïse", data: buildDeltaQualiCourse(champ, "moise") }
+          ];
+      
+          const ctx = document.getElementById("chartDeltaQualiCourse");
+          if(ctx){
+            if(!charts.deltaQualiCourse){
+              charts.deltaQualiCourse = new Chart(ctx, {
+                type: "bar",
+                data: { labels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: { y: { beginAtZero: true } }
+                }
+              });
+            } else {
+              charts.deltaQualiCourse.data.labels = labels;
+              charts.deltaQualiCourse.data.datasets = datasets;
+              charts.deltaQualiCourse.update();
+            }
+          }
+        }
+      
+        // 7) Constructeurs cumulés
+        {
+          const teams = teamsList();
+          // Ordonne par total final (dernier cum)
+          const totals = teams.map(t => {
+            const serie = buildTeamsCumulative(champ, t.teamKey);
+            return { t, serie, total: serie[serie.length-1] ?? 0 };
+          }).sort((a,b)=>b.total-a.total);
+      
+          const datasets = totals.map(x => ({
+            label: x.t.teamName,
+            data: x.serie,
+            tension: 0.25
+          }));
+      
+          const ctx = document.getElementById("chartTeamsCumulative");
+          if(ctx){
+            if(!charts.teamsCum){
+              charts.teamsCum = new Chart(ctx, {
+                type: "line",
+                data: { labels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: { y: { beginAtZero: true } }
+                }
+              });
+            } else {
+              charts.teamsCum.data.labels = labels;
+              charts.teamsCum.data.datasets = datasets;
+              charts.teamsCum.update();
+            }
+          }
+        }
+      
+        // 9) Race chart rang constructeurs (Y inversé)
+        {
+          const { teams, rankSeries } = buildTeamsRankSeries(champ);
+          const datasets = teams.map(t => ({
+            label: t.teamName,
+            data: rankSeries.get(t.teamKey) || [],
+            tension: 0.25
+          }));
+      
+          const ctx = document.getElementById("chartTeamsRank");
+          if(ctx){
+            if(!charts.teamsRank){
+              charts.teamsRank = new Chart(ctx, {
+                type: "line",
+                data: { labels, datasets },
+                options: {
+                  ...chartOptionsBase(),
+                  scales: {
+                    y: {
+                      reverse: true,
+                      suggestedMin: 1,
+                      suggestedMax: teams.length,
+                      ticks: { stepSize: 1 }
+                    }
+                  }
+                }
+              });
+            } else {
+              charts.teamsRank.data.labels = labels;
+              charts.teamsRank.data.datasets = datasets;
+              charts.teamsRank.update();
+            }
+          }
+        }
+      }
 
     /* ===========================
        Init
