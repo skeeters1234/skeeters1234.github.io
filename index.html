@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>F1 2025 – Duel Ferrari | Raphaël vs Moïse vs Josh</title>
+  <title>F1 2025 – Career Mode</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-  
+
   <style>
     :root{
       --f1-red:#E10600;
@@ -475,7 +475,7 @@
     }
     .modal-grid{
       display:grid;
-      grid-template-columns: 1fr 1fr 1fr; /* Modifié pour 3 pilotes */
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 12px;
       margin-top: 12px;
     }
@@ -505,7 +505,7 @@
       display:block;
       margin: 10px 0 6px;
     }
-    .field input{
+    .field input, .field select{
       width: 100%;
       background: rgba(0,0,0,0.35);
       border: 1px solid rgba(255,255,255,0.10);
@@ -515,8 +515,8 @@
       outline:none;
       transition: transform .16s ease, border-color .2s ease;
     }
-    .field input:focus{ border-color: rgba(225,6,0,0.7); }
-    .field input:hover{ transform: scale(1.01); }
+    .field input:focus, .field select:focus{ border-color: rgba(225,6,0,0.7); }
+    .field input:hover, .field select:hover{ transform: scale(1.01); }
 
     .inline-2{
       display:grid;
@@ -972,7 +972,7 @@
     .results-panel-body{
       padding: 12px 16px 16px;
       display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* MODIF: Adaptatif pour 3 items */
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 12px;
       min-width:0;
     }
@@ -1024,7 +1024,7 @@
       .gp-stats2{ grid-template-columns: 1fr; }
       .results-panel-body{ grid-template-columns: 1fr; }
       .other-positions{ grid-template-columns: 1fr; }
-      .modal-grid { grid-template-columns: 1fr; } /* Modale en 1 colonne sur mobile */
+      .modal-grid { grid-template-columns: 1fr; }
 
       .calendar-hub{ grid-template-columns: 1fr; }
       .gp-sidebar{ position:relative; top:auto; max-height:none; }
@@ -1046,45 +1046,31 @@
       .field.full{ grid-column: auto; }
     }
 
-    /* ===========================
-       FIX MOBILE (<700px) : évite les chevauchements
-       Pilotes + Constructeurs
-    ============================ */
     @media (max-width: 700px){
-
-      /* --- PILOTES : compact (Rang | Pilote | Points) --- */
       #pilots .ea-row{
         grid-template-columns: 64px 1fr 110px !important;
         padding: 14px 12px;
         gap: 10px;
       }
-
-      /* Cache NAT + ÉQUIPE (colonnes 3 et 4) */
       #pilots .ea-row.ea-header > div:nth-child(3),
       #pilots .ea-row.ea-header > div:nth-child(4),
       #pilots .ea-row.ea-data   > div:nth-child(3),
       #pilots .ea-row.ea-data   > div:nth-child(4){
         display: none;
       }
-
       #pilots .portrait{ width:44px; height:44px; }
       #pilots .pilot-name{ font-size: .98rem; }
       #pilots .pilot-meta{ font-size: .80rem; flex-wrap: wrap; }
       #pilots .rank{ font-size: 1.25rem; }
 
-
-      /* --- CONSTRUCTEURS : compact (Rang | Écurie | Points) --- */
       #constructors .ea-row{
         grid-template-columns: 64px 1fr 110px !important;
         padding: 14px 12px;
         gap: 10px;
       }
-
       #constructors .pilot-name{ font-size: .98rem; }
       #constructors .pilot-meta{ font-size: .80rem; flex-wrap: wrap; }
       #constructors .rank{ font-size: 1.25rem; }
-
-      /* --- Points box : plus petit --- */
       .points-box{
         width: 104px !important;
         padding: 10px 0;
@@ -1092,7 +1078,6 @@
       }
     }
 
-    /* Ultra petits écrans (iPhone SE / très étroit) */
     @media (max-width: 380px){
       #pilots .ea-row,
       #constructors .ea-row{
@@ -1103,128 +1088,42 @@
         font-size: 1rem;
       }
     }
-          /* =========================================
-          Réduction typographie (Pilotes + Écuries)
-          -> à coller TOUT EN BAS du <style>
-      ========================================= */
       
-      /* Taille “intelligente” sur toutes tailles d’écran */
-      #pilots .pilot-name{
-        font-size: clamp(0.90rem, 1.05vw, 1.02rem);
-        letter-spacing: 0.2px;
-      }
-      #pilots .pilot-meta{
-        font-size: clamp(0.74rem, 0.95vw, 0.86rem);
-      }
+    /* Typographie */
+    #pilots .pilot-name{ font-size: clamp(0.90rem, 1.05vw, 1.02rem); letter-spacing: 0.2px; }
+    #pilots .pilot-meta{ font-size: clamp(0.74rem, 0.95vw, 0.86rem); }
+    #pilots .team{ font-size: clamp(0.66rem, 0.85vw, 0.78rem); letter-spacing: 0.7px; }
+    #constructors .pilot-name{ font-size: clamp(0.92rem, 1.1vw, 1.04rem); letter-spacing: 0.8px; }
+    #constructors .pilot-meta{ font-size: clamp(0.72rem, 0.95vw, 0.84rem); }
+    #pilots .pilot-name, #constructors .pilot-name{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+    
+    @media (max-width: 700px){
+      #pilots .ea-row.ea-header, #constructors .ea-row.ea-header{ display:none; }
+      #pilots .ea-row.ea-data, #constructors .ea-row.ea-data{ display:flex !important; flex-wrap:wrap; gap: 10px; align-items:center; }
+      #pilots .ea-row.ea-data .rank{ flex: 0 0 56px; font-size: 1.25rem; text-align:left; }
+      #pilots .ea-row.ea-data .pilot-cell{ flex: 1 1 calc(100% - 70px); min-width: 220px; }
+      #pilots .pilot-name{ font-size: .98rem; }
+      #pilots .pilot-meta{ font-size: .78rem; }
+      #pilots .ea-row.ea-data .nat{ flex: 0 0 64px; justify-content:flex-start; }
+      #pilots .ea-row.ea-data .team{ flex: 1 1 auto; justify-content:flex-start; font-size: .72rem; letter-spacing: .8px; }
+      #pilots .ea-row.ea-data .points{ flex: 1 1 100%; justify-content:flex-start; }
+      #pilots .points-box{ width: 140px; }
+      #constructors .ea-row.ea-data .rank{ flex: 0 0 56px; font-size: 1.25rem; text-align:left; }
+      #constructors .ea-row.ea-data .pilot-cell{ flex: 1 1 calc(100% - 70px); min-width: 220px; }
+      #constructors .pilot-name{ font-size: .95rem; }
+      #constructors .pilot-meta{ font-size: .78rem; }
+      #constructors .ea-row.ea-data .points{ flex: 1 1 100%; justify-content:flex-start; }
+      #constructors .points-box{ width: 160px; }
       
-      #pilots .team{
-        font-size: clamp(0.66rem, 0.85vw, 0.78rem);
-        letter-spacing: 0.7px;
-      }
-      
-      /* Constructeurs : nom d’écurie + meta plus compacts */
-      #constructors .pilot-name{
-        font-size: clamp(0.92rem, 1.1vw, 1.04rem);
-        letter-spacing: 0.8px; /* tu peux baisser à 0.6 si tu veux encore + compact */
-      }
-      #constructors .pilot-meta{
-        font-size: clamp(0.72rem, 0.95vw, 0.84rem);
-      }
-      
-      /* Bonus : évite les débordements sur petites largeurs */
-      #pilots .pilot-name,
-      #constructors .pilot-name{
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-      }
-      
-      /* Encore plus petit sous 700px (là où tu avais le chevauchement) */
-      @media (max-width: 700px){
-        #pilots .pilot-name{ font-size: 0.81rem; }
-        #pilots .pilot-meta{ font-size: 0.70rem; }
-      
-        #constructors .pilot-name{ font-size: 0.90rem; }
-        #constructors .pilot-meta{ font-size: 0.74rem; }
-      
-        #pilots .team{
-          font-size: 0.66rem;
-          letter-spacing: 0.5px;
-        }
-      }
-
-/* ===========================
-   FIX chevauchement tables < 700px
-   (Pilotes + Constructeurs)
-=========================== */
-@media (max-width: 700px){
-  /* cache l'entête, on passe en “cartes” flex-wrap */
-  #pilots .ea-row.ea-header,
-  #constructors .ea-row.ea-header{ display:none; }
-
-  #pilots .ea-row.ea-data,
-  #constructors .ea-row.ea-data{
-    display:flex !important;
-    flex-wrap:wrap;
-    gap: 10px;
-    align-items:center;
-  }
-
-  #pilots .ea-row.ea-data .rank{
-    flex: 0 0 56px;
-    font-size: 1.25rem;
-    text-align:left;
-  }
-  #pilots .ea-row.ea-data .pilot-cell{
-    flex: 1 1 calc(100% - 70px);
-    min-width: 220px;
-  }
-  #pilots .pilot-name{ font-size: .98rem; }
-  #pilots .pilot-meta{ font-size: .78rem; }
-
-  #pilots .ea-row.ea-data .nat{
-    flex: 0 0 64px;
-    justify-content:flex-start;
-  }
-  #pilots .ea-row.ea-data .team{
-    flex: 1 1 auto;
-    justify-content:flex-start;
-    font-size: .72rem;
-    letter-spacing: .8px;
-  }
-  #pilots .ea-row.ea-data .points{
-    flex: 1 1 100%;
-    justify-content:flex-start;
-  }
-  #pilots .points-box{ width: 140px; }
-
-  /* Constructeurs : rang + équipe + points */
-  #constructors .ea-row.ea-data .rank{
-    flex: 0 0 56px;
-    font-size: 1.25rem;
-    text-align:left;
-  }
-  #constructors .ea-row.ea-data .pilot-cell{
-    flex: 1 1 calc(100% - 70px);
-    min-width: 220px;
-  }
-  #constructors .pilot-name{ font-size: .95rem; }
-  #constructors .pilot-meta{ font-size: .78rem; }
-
-  #constructors .ea-row.ea-data .points{
-    flex: 1 1 100%;
-    justify-content:flex-start;
-  }
-  #constructors .points-box{ width: 160px; }
-}
+      #pilots .team{ font-size: 0.66rem; letter-spacing: 0.5px; }
+    }
 
   </style>
 </head>
 
 <body>
   <header>
-    <div class="logo">F1 <span class="sub">Duel Tracker</span></div>
+    <div class="logo">F1 <span class="sub">Career</span></div>
 
     <div class="nav-links">
       <div class="nav-item active" onclick="switchTab('pilots')">Pilotes</div>
@@ -1255,8 +1154,8 @@
       </select>
     </div>
 
-    <button class="btn" style="margin-left:auto" onclick="createNewChampionship()">+ Nouveau championnat</button>
-    <button class="btn secondary" onclick="duplicateChampionship()">Dupliquer championnat</button>
+    <button class="btn" style="margin-left:auto" onclick="openSetupModal()">+ Nouveau championnat</button>
+    <button class="btn secondary" onclick="duplicateChampionship()">Dupliquer</button>
     <button class="btn secondary" onclick="resetAll()">Reset</button>
   </div>
 
@@ -1264,10 +1163,9 @@
     <section id="pilots" class="section active">
       <div class="title-row">
         <div>
-          <h2>Classement pilotes – Grille complète (Ferrari = vous)</h2>
+          <h2>Classement pilotes – Grille complète</h2>
           <div class="subtitle">
-            Les points sont calculés à partir des <b>positions de course</b> saisies GP par GP.
-            Survole la case <b>POINTS</b> pour voir le détail.
+            Vos pilotes remplacent les titulaires choisis en début de saison.
           </div>
         </div>
       </div>
@@ -1287,9 +1185,9 @@
     <section id="constructors" class="section">
       <div class="title-row">
         <div>
-          <h2>Classement constructeurs – Points par écurie</h2>
+          <h2>Classement constructeurs</h2>
           <div class="subtitle">
-            Total = somme des points de course saisis pour les pilotes de l’écurie (Ferrari = Raphaël + Moïse + Josh).
+            Total = somme des points de tous les pilotes de l'écurie (joueurs + IA).
           </div>
         </div>
       </div>
@@ -1307,10 +1205,9 @@
     <section id="calendar" class="section">
       <div class="title-row">
         <div>
-          <h2>Calendrier – Circuits + saisie résultats</h2>
+          <h2>Calendrier</h2>
           <div class="subtitle">
-            Saisie : <b>Raphaël/Moïse/Josh</b> (Qualif temps + Qualif position + Course position + Écart P1 + Meilleur temps course) •
-            <b>Autres pilotes</b> (Course position uniquement).
+            Saisie : <b>Raphaël/Moïse/Josh</b> (Détail complet) • <b>Autres</b> (Position course uniquement).
           </div>
         </div>
       </div>
@@ -1406,9 +1303,6 @@
               <div class="results-panel-head">
                 <strong>Résultats saisis (Raphaël / Moïse / Josh)</strong>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                  <div style="color:var(--muted); font-weight:800;">
-                    Points Ferrari : <span style="color:var(--white); font-weight:900;" id="ferrariGpTotal">0</span>
-                  </div>
                   <button class="btn secondary" onclick="openRaceModal(currentRaceIndex)">Ouvrir saisie</button>
                 </div>
               </div>
@@ -1428,7 +1322,7 @@
         </div>
       </div>
     </section>
-    
+
     <section id="data" class="section">
       <div class="title-row">
         <div>
@@ -1454,9 +1348,48 @@
     </section>
   </main>
 
-  <footer>Championnat privé F1 2025 – Raphaël, Moïse & Josh (Ferrari)</footer>
+  <footer>Championnat privé F1 2025 – Raphaël, Moïse & Josh</footer>
 
   <div id="tooltip" class="tooltip"></div>
+
+  <div id="setupModal" class="modal" onclick="if(event.target.id==='setupModal') document.getElementById('setupModal').style.display='none'">
+    <div class="modal-content" style="width:600px;">
+      <div class="modal-title">
+        <h3>Configuration de la saison</h3>
+        <button class="btn secondary" onclick="document.getElementById('setupModal').style.display='none'">Fermer</button>
+      </div>
+      <div style="color:var(--muted); font-size:.9rem; margin-bottom:14px;">
+        Choisissez qui chaque joueur remplace sur la grille 2025.
+      </div>
+      
+      <div class="field">
+        <label>Nom du championnat</label>
+        <input type="text" id="setupName" placeholder="Saison 2025...">
+      </div>
+
+      <div class="modal-grid" style="grid-template-columns:1fr;">
+        <div class="field">
+          <h4>Raphaël</h4>
+          <label>Remplace :</label>
+          <select id="setupRaph"></select>
+        </div>
+        <div class="field">
+          <h4>Moïse</h4>
+          <label>Remplace :</label>
+          <select id="setupMoise"></select>
+        </div>
+        <div class="field">
+          <h4>Josh</h4>
+          <label>Remplace :</label>
+          <select id="setupJosh"></select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" onclick="confirmNewSeason()">Créer Championnat</button>
+      </div>
+    </div>
+  </div>
 
   <div id="raceModal" class="modal" onclick="modalBackdropClose(event)">
     <div class="modal-content">
@@ -1473,63 +1406,36 @@
         <div class="modal-grid">
           
           <div class="field">
-            <h4><span class="sf-badge">SF</span> Raphaël</h4>
+            <h4><span id="badgeRaph" class="sf-badge" style="background:#444;">P</span> Raphaël</h4>
             <div class="inline-2">
-              <div>
-                <label>Pos Qualif</label>
-                <input type="number" id="q_pos_raph" min="1" max="20" placeholder="Ex: 3">
-              </div>
-              <div>
-                <label>Tps Qualif</label>
-                <input type="text" id="q_time_raph" placeholder="1:32.456">
-              </div>
+              <div><label>Pos Qualif</label><input type="number" id="q_pos_raph" min="1" max="20"></div>
+              <div><label>Tps Qualif</label><input type="text" id="q_time_raph"></div>
             </div>
-            <label>Pos Course</label>
-            <input type="number" id="r_pos_raph" min="1" max="20" placeholder="Ex: 5">
-            <label>Écart P1</label>
-            <input type="text" id="gap_raph" placeholder="+1:15.822">
-            <label>Best Lap</label>
-            <input type="text" id="best_race_raph" placeholder="1:31.999">
+            <label>Pos Course</label><input type="number" id="r_pos_raph" min="1" max="20">
+            <label>Écart P1</label><input type="text" id="gap_raph">
+            <label>Best Lap</label><input type="text" id="best_race_raph">
           </div>
 
           <div class="field">
-            <h4><span class="sf-badge">SF</span> Moïse</h4>
+            <h4><span id="badgeMoise" class="sf-badge" style="background:#444;">P</span> Moïse</h4>
             <div class="inline-2">
-              <div>
-                <label>Pos Qualif</label>
-                <input type="number" id="q_pos_moise" min="1" max="20" placeholder="Ex: 7">
-              </div>
-              <div>
-                <label>Tps Qualif</label>
-                <input type="text" id="q_time_moise" placeholder="1:33.012">
-              </div>
+              <div><label>Pos Qualif</label><input type="number" id="q_pos_moise" min="1" max="20"></div>
+              <div><label>Tps Qualif</label><input type="text" id="q_time_moise"></div>
             </div>
-            <label>Pos Course</label>
-            <input type="number" id="r_pos_moise" min="1" max="20" placeholder="Ex: 10">
-            <label>Écart P1</label>
-            <input type="text" id="gap_moise" placeholder="+0:22.100">
-            <label>Best Lap</label>
-            <input type="text" id="best_race_moise" placeholder="1:32.120">
+            <label>Pos Course</label><input type="number" id="r_pos_moise" min="1" max="20">
+            <label>Écart P1</label><input type="text" id="gap_moise">
+            <label>Best Lap</label><input type="text" id="best_race_moise">
           </div>
 
           <div class="field">
-            <h4><span class="sf-badge">SF</span> Josh</h4>
+            <h4><span id="badgeJosh" class="sf-badge" style="background:#444;">P</span> Josh</h4>
             <div class="inline-2">
-              <div>
-                <label>Pos Qualif</label>
-                <input type="number" id="q_pos_josh" min="1" max="20" placeholder="Ex: 4">
-              </div>
-              <div>
-                <label>Tps Qualif</label>
-                <input type="text" id="q_time_josh" placeholder="1:32.555">
-              </div>
+              <div><label>Pos Qualif</label><input type="number" id="q_pos_josh" min="1" max="20"></div>
+              <div><label>Tps Qualif</label><input type="text" id="q_time_josh"></div>
             </div>
-            <label>Pos Course</label>
-            <input type="number" id="r_pos_josh" min="1" max="20" placeholder="Ex: 6">
-            <label>Écart P1</label>
-            <input type="text" id="gap_josh" placeholder="+0:10.500">
-            <label>Best Lap</label>
-            <input type="text" id="best_race_josh" placeholder="1:32.000">
+            <label>Pos Course</label><input type="number" id="r_pos_josh" min="1" max="20">
+            <label>Écart P1</label><input type="text" id="gap_josh">
+            <label>Best Lap</label><input type="text" id="best_race_josh">
           </div>
 
           <div class="field full">
@@ -1551,7 +1457,7 @@
 
   <script>
     /* ===========================
-       Firebase + ROOM (shared)
+       Firebase Config
     ============================ */
     const firebaseConfig = {
       apiKey: "AIzaSyD2WiYTm0QuVuTQZiLLrCNoG3ERdpGNuu0",
@@ -1564,8 +1470,6 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    // Salle partagée via l’URL : .../index.html#duel2025
     const ROOM_ID = (location.hash || "#default").replace("#","").trim() || "default";
     const docRef = db.collection("championships").doc(ROOM_ID);
 
@@ -1585,78 +1489,81 @@
     let hasInitialSnapshot = false;
     let remoteSaveTimer = null;
 
-    /* ===========================
-       STORAGE
-    ============================ */
-    const STORAGE_KEY = "f1_duel_tracker_grid_v4"; // Version bump for 3 drivers structure
+    const STORAGE_KEY = "f1_tracker_v5_pro";
     const POINTS = [25,18,15,12,10,8,6,4,2,1];
 
     /* ===========================
-       CALENDRIER 2025
+       DATA: REAL 2025 GRID
     ============================ */
+    const REAL_DRIVERS_2025 = [
+      { id:"verstappen", name:"Max Verstappen", natCode:"nl", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
+      { id:"lawson", name:"Liam Lawson", natCode:"nz", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
+      { id:"leclerc", name:"Charles Leclerc", natCode:"mc", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER" },
+      { id:"hamilton", name:"Lewis Hamilton", natCode:"gb", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER" },
+      { id:"norris", name:"Lando Norris", natCode:"gb", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
+      { id:"piastri", name:"Oscar Piastri", natCode:"au", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
+      { id:"russell", name:"George Russell", natCode:"gb", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
+      { id:"antonelli", name:"Andrea Antonelli", natCode:"it", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
+      { id:"alonso", name:"Fernando Alonso", natCode:"es", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
+      { id:"stroll", name:"Lance Stroll", natCode:"ca", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
+      { id:"gasly", name:"Pierre Gasly", natCode:"fr", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" },
+      { id:"doohan", name:"Jack Doohan", natCode:"au", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" },
+      { id:"albon", name:"Alexander Albon", natCode:"th", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
+      { id:"sainz", name:"Carlos Sainz Jr.", natCode:"es", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
+      { id:"tsunoda", name:"Yuki Tsunoda", natCode:"jp", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
+      { id:"hadjar", name:"Isack Hadjar", natCode:"fr", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
+      { id:"hulkenberg", name:"Nico Hülkenberg", natCode:"de", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
+      { id:"bortoleto", name:"Gabriel Bortoleto", natCode:"br", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
+      { id:"ocon", name:"Esteban Ocon", natCode:"fr", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" },
+      { id:"bearman", name:"Oliver Bearman", natCode:"gb", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" }
+    ];
+
+    const PLAYERS = [
+      { id:"raph", name:"Raphaël", natCode:"fr" },
+      { id:"moise", name:"Moïse", natCode:"fr" },
+      { id:"josh", name:"Josh", natCode:"gb" }
+    ];
+
+    // LEGACY FALLBACK (Old Triple Threat Ferrari)
+    const LEGACY_GRID = [
+      ...REAL_DRIVERS_2025.filter(d => d.id !== "leclerc" && d.id !== "hamilton"), // Remove real ferrari
+      { id:"raph", name:"Raphaël", natCode:"fr", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
+      { id:"moise", name:"Moïse", natCode:"fr", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
+      { id:"josh", name:"Josh", natCode:"gb", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true }
+    ];
+
     const CIRCUITS_2025 = [
-      { id:"melbourne", name:"Melbourne Grand Prix Circuit", country:"Australie", countryCode:"au", city:"Melbourne", dates:"14–16 mars 2025", laps:58, turns:16, lengthKm:"5.303", drs:"2", tags:["Rapide","Technique"], accent:"#2D7DFF" },
-      { id:"shanghai", name:"Shanghai International Circuit", country:"Chine", countryCode:"cn", city:"Shanghai", dates:"21–23 mars 2025", laps:56, turns:16, lengthKm:"5.451", drs:"2", tags:["Technique"], accent:"#E10600" },
-      { id:"suzuka", name:"Suzuka International Racing Course", country:"Japon", countryCode:"jp", city:"Suzuka", dates:"04–06 avril 2025", laps:53, turns:18, lengthKm:"5.807", drs:"1", tags:["Technique"], accent:"#FF3B3B" },
-      { id:"bahrain", name:"Circuit International de Bahreïn", country:"Bahreïn", countryCode:"bh", city:"Sakhir", dates:"11–13 avril 2025", laps:57, turns:15, lengthKm:"5.412", drs:"3", tags:["Rapide"], accent:"#FFB020" },
-      { id:"jeddah", name:"Jeddah Corniche Circuit", country:"Arabie Saoudite", countryCode:"sa", city:"Djeddah", dates:"18–20 avril 2025", laps:50, turns:27, lengthKm:"6.174", drs:"3", tags:["Rapide"], accent:"#2ED47A" },
-      { id:"miami", name:"Miami International Autodrome", country:"États-Unis", countryCode:"us", city:"Miami", dates:"02–04 mai 2025", laps:57, turns:19, lengthKm:"5.41", drs:"-", tags:["Rapide"], accent:"#FF4FD8" },
-      { id:"imola", name:"Autodromo Enzo e Dino Ferrari", country:"Italie", countryCode:"it", city:"Imola", dates:"16–18 mai 2025", laps:63, turns:19, lengthKm:"4.909", drs:"1", tags:["Technique"], accent:"#00C2FF" },
-      { id:"monaco", name:"Circuit de Monaco", country:"Monaco", countryCode:"mc", city:"Monaco", dates:"23–25 mai 2025", laps:78, turns:19, lengthKm:"3.337", drs:"1", tags:["Technique"], accent:"#C0C0C0" },
-      { id:"barcelona", name:"Circuit de Barcelona-Catalunya", country:"Espagne", countryCode:"es", city:"Barcelone", dates:"30 mai – 1er juin 2025", laps:66, turns:16, lengthKm:"4.675", drs:"2", tags:["Technique"], accent:"#FFD166" },
-      { id:"montreal", name:"Circuit Gilles-Villeneuve", country:"Canada", countryCode:"ca", city:"Montréal", dates:"13–15 juin 2025", laps:70, turns:14, lengthKm:"4.361", drs:"2", tags:["Rapide"], accent:"#FF3B3B" },
-      { id:"spielberg", name:"Red Bull Ring", country:"Autriche", countryCode:"at", city:"Spielberg", dates:"27–29 juin 2025", laps:71, turns:10, lengthKm:"4.318", drs:"3", tags:["Rapide"], accent:"#E10600" },
-      { id:"silverstone", name:"Silverstone Circuit", country:"Grande-Bretagne", countryCode:"gb", city:"Silverstone", dates:"04–06 juillet 2025", laps:52, turns:18, lengthKm:"5.891", drs:"2", tags:["Rapide"], accent:"#2D7DFF" },
-      { id:"spa", name:"Circuit de Spa-Francorchamps", country:"Belgique", countryCode:"be", city:"Spa", dates:"25–27 juillet 2025", laps:44, turns:19, lengthKm:"7.004", drs:"2", tags:["Rapide"], accent:"#FFD166" },
-      { id:"hungaroring", name:"Circuit Magyar Nagydij", country:"Hongrie", countryCode:"hu", city:"Budapest", dates:"01–03 août 2025", laps:70, turns:14, lengthKm:"4.381", drs:"1", tags:["Technique"], accent:"#2ED47A" },
-      { id:"zandvoort", name:"Circuit Zandvoort", country:"Pays-Bas", countryCode:"nl", city:"Zandvoort", dates:"29–31 août 2025", laps:72, turns:14, lengthKm:"4.259", drs:"2", tags:["Technique"], accent:"#FF8A00" },
-      { id:"monza", name:"Autodromo Nazionale Monza", country:"Italie", countryCode:"it", city:"Monza", dates:"05–07 septembre 2025", laps:53, turns:11, lengthKm:"5.793", drs:"2", tags:["Rapide"], accent:"#00C2FF" },
-      { id:"baku", name:"Baku City Circuit", country:"Azerbaïdjan", countryCode:"az", city:"Bakou", dates:"19–21 septembre 2025", laps:51, turns:20, lengthKm:"6.003", drs:"2", tags:["Rapide"], accent:"#2ED47A" },
-      { id:"singapore", name:"Marina Bay Street Circuit", country:"Singapour", countryCode:"sg", city:"Singapour", dates:"03–05 octobre 2025", laps:61, turns:23, lengthKm:"5.063", drs:"3", tags:["Technique"], accent:"#FF4FD8" },
-      { id:"austin", name:"Circuit of the Americas", country:"États-Unis", countryCode:"us", city:"Austin", dates:"17–19 octobre 2025", laps:56, turns:20, lengthKm:"5.513", drs:"2", tags:["Technique"], accent:"#FFB020" },
-      { id:"mexico", name:"Autódromo Hermanos Rodríguez", country:"Mexique", countryCode:"mx", city:"Mexico", dates:"24–26 octobre 2025", laps:71, turns:17, lengthKm:"4.304", drs:"2", tags:["Rapide"], accent:"#2ED47A" },
-      { id:"interlagos", name:"Autódromo José Carlos Pace", country:"Brésil", countryCode:"br", city:"São Paulo", dates:"07–09 novembre 2025", laps:71, turns:15, lengthKm:"4.309", drs:"2", tags:["Technique"], accent:"#FFD166" },
-      { id:"lasvegas", name:"Las Vegas Street Circuit", country:"États-Unis", countryCode:"us", city:"Las Vegas", dates:"20–22 novembre 2025", laps:50, turns:17, lengthKm:"6.12", drs:"2", tags:["Rapide"], accent:"#C0C0C0" },
-      { id:"lusail", name:"Lusail International Circuit", country:"Qatar", countryCode:"qa", city:"Lusail", dates:"28–30 novembre 2025", laps:57, turns:16, lengthKm:"5.419", drs:"1", tags:["Rapide"], accent:"#FFB020" },
-      { id:"abudhabi", name:"Yas Marina Circuit", country:"Émirats Arabes Unis", countryCode:"ae", city:"Abu Dhabi", dates:"05–07 décembre 2025", laps:58, turns:16, lengthKm:"5.281", drs:"2", tags:["Technique"], accent:"#2D7DFF" }
+      { id:"melbourne", name:"Melbourne", country:"Australie", countryCode:"au", city:"Melbourne", dates:"14–16 mars", laps:58, turns:16, lengthKm:"5.3", drs:"2", tags:["Rapide"], accent:"#2D7DFF" },
+      { id:"shanghai", name:"Shanghai", country:"Chine", countryCode:"cn", city:"Shanghai", dates:"21–23 mars", laps:56, turns:16, lengthKm:"5.4", drs:"2", tags:["Tech"], accent:"#E10600" },
+      { id:"suzuka", name:"Suzuka", country:"Japon", countryCode:"jp", city:"Suzuka", dates:"04–06 avril", laps:53, turns:18, lengthKm:"5.8", drs:"1", tags:["Tech"], accent:"#FF3B3B" },
+      { id:"bahrain", name:"Bahreïn", country:"Bahreïn", countryCode:"bh", city:"Sakhir", dates:"11–13 avril", laps:57, turns:15, lengthKm:"5.4", drs:"3", tags:["Rapide"], accent:"#FFB020" },
+      { id:"jeddah", name:"Jeddah", country:"Arabie Saoudite", countryCode:"sa", city:"Djeddah", dates:"18–20 avril", laps:50, turns:27, lengthKm:"6.1", drs:"3", tags:["Rapide"], accent:"#2ED47A" },
+      { id:"miami", name:"Miami", country:"États-Unis", countryCode:"us", city:"Miami", dates:"02–04 mai", laps:57, turns:19, lengthKm:"5.4", drs:"-", tags:["Rapide"], accent:"#FF4FD8" },
+      { id:"imola", name:"Imola", country:"Italie", countryCode:"it", city:"Imola", dates:"16–18 mai", laps:63, turns:19, lengthKm:"4.9", drs:"1", tags:["Tech"], accent:"#00C2FF" },
+      { id:"monaco", name:"Monaco", country:"Monaco", countryCode:"mc", city:"Monaco", dates:"23–25 mai", laps:78, turns:19, lengthKm:"3.3", drs:"1", tags:["Tech"], accent:"#C0C0C0" },
+      { id:"barcelona", name:"Barcelone", country:"Espagne", countryCode:"es", city:"Barcelone", dates:"30 mai – 1er juin", laps:66, turns:16, lengthKm:"4.6", drs:"2", tags:["Tech"], accent:"#FFD166" },
+      { id:"montreal", name:"Montréal", country:"Canada", countryCode:"ca", city:"Montréal", dates:"13–15 juin", laps:70, turns:14, lengthKm:"4.3", drs:"2", tags:["Rapide"], accent:"#FF3B3B" },
+      { id:"spielberg", name:"Red Bull Ring", country:"Autriche", countryCode:"at", city:"Spielberg", dates:"27–29 juin", laps:71, turns:10, lengthKm:"4.3", drs:"3", tags:["Rapide"], accent:"#E10600" },
+      { id:"silverstone", name:"Silverstone", country:"Grande-Bretagne", countryCode:"gb", city:"Silverstone", dates:"04–06 juil", laps:52, turns:18, lengthKm:"5.8", drs:"2", tags:["Rapide"], accent:"#2D7DFF" },
+      { id:"spa", name:"Spa", country:"Belgique", countryCode:"be", city:"Spa", dates:"25–27 juil", laps:44, turns:19, lengthKm:"7.0", drs:"2", tags:["Rapide"], accent:"#FFD166" },
+      { id:"hungaroring", name:"Budapest", country:"Hongrie", countryCode:"hu", city:"Budapest", dates:"01–03 août", laps:70, turns:14, lengthKm:"4.3", drs:"1", tags:["Tech"], accent:"#2ED47A" },
+      { id:"zandvoort", name:"Zandvoort", country:"Pays-Bas", countryCode:"nl", city:"Zandvoort", dates:"29–31 août", laps:72, turns:14, lengthKm:"4.2", drs:"2", tags:["Tech"], accent:"#FF8A00" },
+      { id:"monza", name:"Monza", country:"Italie", countryCode:"it", city:"Monza", dates:"05–07 sept", laps:53, turns:11, lengthKm:"5.7", drs:"2", tags:["Rapide"], accent:"#00C2FF" },
+      { id:"baku", name:"Bakou", country:"Azerbaïdjan", countryCode:"az", city:"Bakou", dates:"19–21 sept", laps:51, turns:20, lengthKm:"6.0", drs:"2", tags:["Rapide"], accent:"#2ED47A" },
+      { id:"singapore", name:"Singapour", country:"Singapour", countryCode:"sg", city:"Singapour", dates:"03–05 oct", laps:61, turns:23, lengthKm:"5.0", drs:"3", tags:["Tech"], accent:"#FF4FD8" },
+      { id:"austin", name:"Austin", country:"États-Unis", countryCode:"us", city:"Austin", dates:"17–19 oct", laps:56, turns:20, lengthKm:"5.5", drs:"2", tags:["Tech"], accent:"#FFB020" },
+      { id:"mexico", name:"Mexico", country:"Mexique", countryCode:"mx", city:"Mexico", dates:"24–26 oct", laps:71, turns:17, lengthKm:"4.3", drs:"2", tags:["Rapide"], accent:"#2ED47A" },
+      { id:"interlagos", name:"Interlagos", country:"Brésil", countryCode:"br", city:"São Paulo", dates:"07–09 nov", laps:71, turns:15, lengthKm:"4.3", drs:"2", tags:["Tech"], accent:"#FFD166" },
+      { id:"lasvegas", name:"Las Vegas", country:"États-Unis", countryCode:"us", city:"Las Vegas", dates:"20–22 nov", laps:50, turns:17, lengthKm:"6.1", drs:"2", tags:["Rapide"], accent:"#C0C0C0" },
+      { id:"lusail", name:"Qatar", country:"Qatar", countryCode:"qa", city:"Lusail", dates:"28–30 nov", laps:57, turns:16, lengthKm:"5.4", drs:"1", tags:["Rapide"], accent:"#FFB020" },
+      { id:"abudhabi", name:"Abu Dhabi", country:"Émirats Arabes Unis", countryCode:"ae", city:"Abu Dhabi", dates:"05–07 déc", laps:58, turns:16, lengthKm:"5.2", drs:"2", tags:["Tech"], accent:"#2D7DFF" }
     ];
 
-    /* ===========================
-       Grille 20 pilotes
-    ============================ */
-    // MODIF: JOSH AJOUTÉ
-    const GRID_DRIVERS = [
-      { id:"verstappen", name:"Max Verstappen", natCode:"nl", natImg:"https://flagcdn.com/w80/nl.png", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
-      { id:"norris", name:"Lando Norris", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
-      { id:"raph", name:"Raphaël", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
-      { id:"moise", name:"Moïse", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
-      { id:"josh", name:"Josh", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true }, // Nouveau
-      { id:"russell", name:"George Russell", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
-      { id:"piastri", name:"Oscar Piastri", natCode:"au", natImg:"https://flagcdn.com/w80/au.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
-      { id:"alonso", name:"Fernando Alonso", natCode:"es", natImg:"https://flagcdn.com/w80/es.png", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
-      { id:"hulkenberg", name:"Nico Hülkenberg", natCode:"de", natImg:"https://flagcdn.com/w80/de.png", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
-      { id:"albon", name:"Alexander Albon", natCode:"th", natImg:"https://flagcdn.com/w80/th.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
-      { id:"gasly", name:"Pierre Gasly", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" },
-      { id:"sainz", name:"Carlos Sainz Jr.", natCode:"es", natImg:"https://flagcdn.com/w80/es.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
-      { id:"ocon", name:"Esteban Ocon", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" },
-      { id:"hadjar", name:"Isack Hadjar", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
-      { id:"antonelli", name:"Andrea Antonelli", natCode:"it", natImg:"https://flagcdn.com/w80/it.png", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
-      { id:"bearman", name:"Oliver Bearman", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"haas", teamName:"Haas", teamAbbr:"HAA" },
-      { id:"bortoleto", name:"Gabriel Bortoleto", natCode:"br", natImg:"https://flagcdn.com/w80/br.png", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
-      { id:"tsunoda", name:"Yuki Tsunoda", natCode:"jp", natImg:"https://flagcdn.com/w80/jp.png", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
-      { id:"lawson", name:"Liam Lawson", natCode:"nz", natImg:"https://flagcdn.com/w80/nz.png", teamKey:"rb", teamName:"RB", teamAbbr:"RB" },
-      { id:"stroll", name:"Lance Stroll", natCode:"ca", natImg:"https://flagcdn.com/w80/ca.png", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
-      { id:"colapinto", name:"Franco Colapinto", natCode:"ar", natImg:"https://flagcdn.com/w80/ar.png", teamKey:"alpine", teamName:"Alpine", teamAbbr:"ALP" }
-    ];
-
-    /* ===========================
-       App state
-    ============================ */
     let appData = { championships: [], activeId: null };
     let currentRaceIndex = 0;
 
     /* ===========================
-       Utils couleur
+       Helpers
     ============================ */
     function hexToRgba(hex, a){
       const h = (hex || "").replace("#","");
@@ -1673,42 +1580,137 @@
     }
 
     /* ===========================
-       Championnats / résultats
+       Setup Logic (New Season)
     ============================ */
-    function emptyDriverResult(){
-      return {
-        qualPos: null,
-        qualTime: "",
-        racePos: null,
-        gapToP1: "",
-        bestRaceTime: "",
-        pts: 0
+    function openSetupModal(){
+      const m = document.getElementById("setupModal");
+      m.style.display = "flex";
+      document.getElementById("setupName").value = "";
+      
+      const selects = ["setupRaph", "setupMoise", "setupJosh"];
+      selects.forEach(sid => {
+        const sel = document.getElementById(sid);
+        sel.innerHTML = "";
+        
+        // Group by team for cleaner UI
+        const teams = {};
+        REAL_DRIVERS_2025.forEach(d => {
+          if(!teams[d.teamName]) teams[d.teamName] = [];
+          teams[d.teamName].push(d);
+        });
+
+        Object.keys(teams).forEach(tName => {
+          const grp = document.createElement("optgroup");
+          grp.label = tName;
+          teams[tName].forEach(d => {
+            const opt = document.createElement("option");
+            opt.value = d.id;
+            opt.textContent = `${d.teamName} - ${d.name}`;
+            // Pre-selections for convenience
+            if(sid==="setupRaph" && d.id==="leclerc") opt.selected = true;
+            if(sid==="setupMoise" && d.id==="hamilton") opt.selected = true;
+            if(sid==="setupJosh" && d.id==="sainz") opt.selected = true;
+            grp.appendChild(opt);
+          });
+          sel.appendChild(grp);
+        });
+      });
+    }
+
+    function confirmNewSeason(){
+      const name = document.getElementById("setupName").value.trim() || "Nouvelle Saison";
+      const repRaph = document.getElementById("setupRaph").value;
+      const repMoise = document.getElementById("setupMoise").value;
+      const repJosh = document.getElementById("setupJosh").value;
+
+      // check duplicate seat
+      if(repRaph === repMoise || repRaph === repJosh || repMoise === repJosh){
+        alert("Attention : Deux joueurs ne peuvent pas remplacer le même pilote !");
+        return;
+      }
+
+      // Build the grid
+      const newGrid = [];
+      const replacements = {
+        [repRaph]: "raph",
+        [repMoise]: "moise",
+        [repJosh]: "josh"
       };
+
+      REAL_DRIVERS_2025.forEach(d => {
+        if(replacements[d.id]){
+          // Create Player Entry based on the Seat they took
+          const pid = replacements[d.id];
+          const pInfo = PLAYERS.find(p => p.id === pid);
+          newGrid.push({
+            id: pid,
+            name: pInfo.name,
+            natCode: pInfo.natCode,
+            natImg: `https://flagcdn.com/w80/${pInfo.natCode}.png`,
+            teamKey: d.teamKey,
+            teamName: d.teamName,
+            teamAbbr: d.teamAbbr,
+            isPlayer: true
+          });
+        } else {
+          // Keep AI Driver
+          newGrid.push({
+            ...d,
+            natImg: `https://flagcdn.com/w80/${d.natCode}.png`
+          });
+        }
+      });
+
+      const id = Date.now();
+      const champ = {
+        id,
+        name,
+        createdAt: new Date().toISOString(),
+        grid: newGrid,
+        races: CIRCUITS_2025.map(buildRaceFromCircuit)
+      };
+
+      appData.championships.push(champ);
+      appData.activeId = id;
+      currentRaceIndex = 0;
+      
+      save();
+      document.getElementById("setupModal").style.display = "none";
+    }
+
+    /* ===========================
+       Core Logic
+    ============================ */
+    function getActiveChamp(){
+      return appData.championships.find(c => c.id === appData.activeId);
+    }
+
+    // Returns the grid for current championship, or Legacy Grid if old save
+    function getGrid(){
+      const c = getActiveChamp();
+      if(!c) return [];
+      if(c.grid && c.grid.length > 0) return c.grid;
+      return LEGACY_GRID;
     }
 
     function buildResultsSkeleton(){
-      const results = {};
-      GRID_DRIVERS.forEach(d => { results[d.id] = emptyDriverResult(); });
-      return results;
+      // We need a skeleton that covers all possible driver IDs (Legacy + New)
+      // Safest is to just make a dynamic object or specific IDs.
+      // For simplicity, we just return empty object and fill dynamically.
+      return {}; 
+    }
+
+    function emptyDriverResult(){
+      return { qualPos:null, qualTime:"", racePos:null, gapToP1:"", bestRaceTime:"", pts:0 };
     }
 
     function buildRaceFromCircuit(c, idx){
       return {
-        round: idx + 1,
-        id: c.id,
-        name: c.name,
-        country: c.country,
-        countryCode: c.countryCode,
-        city: c.city,
-        dates: c.dates,
-        laps: c.laps,
-        turns: c.turns,
-        lengthKm: c.lengthKm,
-        drs: c.drs,
-        tags: c.tags || [],
-        accent: c.accent || "#E10600",
-        done:false,
-        results: buildResultsSkeleton()
+        round: idx+1,
+        id: c.id, name: c.name, country: c.country, countryCode: c.countryCode,
+        city: c.city, dates: c.dates, laps: c.laps, turns: c.turns, lengthKm: c.lengthKm, drs: c.drs,
+        tags: c.tags||[], accent: c.accent||"#E10600",
+        done:false, results: {}
       };
     }
 
@@ -1722,773 +1724,57 @@
       if(!Array.isArray(champ.races)) champ.races = [];
       if(champ.races.length === 0){
         champ.races = CIRCUITS_2025.map(buildRaceFromCircuit);
-        return;
       }
-
-      const templateById = new Map(CIRCUITS_2025.map((c,i)=>[c.id, buildRaceFromCircuit(c,i)]));
-
-      champ.races = champ.races.map((r, idx) => {
-        const t = templateById.get(r.id) || buildRaceFromCircuit(CIRCUITS_2025[idx] || CIRCUITS_2025[0], idx);
-        const out = { ...t, ...r };
-
-        // Nouveau format : normalisation pour tous les pilotes (dont Josh)
-        const skeleton = buildResultsSkeleton();
-        if(!out.results || typeof out.results !== "object") out.results = {};
-
-        Object.keys(skeleton).forEach(id => {
-          out.results[id] = { ...emptyDriverResult(), ...(out.results[id] || {}) };
-          // Recalcul points au cas où barème change ou bug
-          out.results[id].pts = computePointsFromPos(out.results[id].racePos);
+      
+      // Fix potential missing results for legacy saves
+      champ.races.forEach(r => {
+        if(!r.results) r.results = {};
+        // Ensure players exist in result object (even if not in grid, just in case)
+        ["raph","moise","josh"].forEach(pid => {
+          if(!r.results[pid]) r.results[pid] = emptyDriverResult();
         });
-
-        out.done = Object.values(out.results).some(x => x && x.racePos !== null && x.racePos !== undefined);
-        return out;
+        
+        // Recalc points
+        Object.keys(r.results).forEach(k => {
+          r.results[k].pts = computePointsFromPos(r.results[k].racePos);
+        });
       });
     }
 
-    /* ===========================
-       Local load/save
-    ============================ */
     function loadLocal(){
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){
-        try{ appData = JSON.parse(raw); }catch(e){ console.warn(e); }
-      }
-      if(!appData || typeof appData !== "object") appData = { championships: [], activeId: null };
-      if(!Array.isArray(appData.championships)) appData.championships = [];
-
+      if(raw) try{ appData = JSON.parse(raw); }catch(e){ console.warn(e); }
+      
+      if(!appData || !appData.championships) appData = { championships: [], activeId: null };
+      
+      // Auto-create legacy if empty
       if(!appData.championships.length){
-        createNewChampionship("Saison 1", { skipSave:true });
+        // We create a "Saison 1" using the Legacy Grid logic
+        const c = {
+          id: Date.now(),
+          name: "Saison 1 (Ferrari)",
+          createdAt: new Date().toISOString(),
+          grid: LEGACY_GRID,
+          races: CIRCUITS_2025.map(buildRaceFromCircuit)
+        };
+        appData.championships.push(c);
+        appData.activeId = c.id;
       }
-      if(!appData.activeId){
-        appData.activeId = appData.championships[0].id;
-      }
-      appData.championships.forEach(ch => ensureCalendar(ch));
+      
+      if(!appData.activeId) appData.activeId = appData.championships[0].id;
+      appData.championships.forEach(ensureCalendar);
     }
 
     function saveLocal(){
       localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
     }
 
-    /* ===========================
-       Firestore sync (real-time)
-    ============================ */
-    function scheduleRemoteSave(){
-      if(isApplyingRemote) return;
-      if(!hasInitialSnapshot) return;
-      clearTimeout(remoteSaveTimer);
-
-      setSyncStatus("sync…");
-      remoteSaveTimer = setTimeout(async () => {
-        try{
-          await docRef.set({
-            appData,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-          setSyncStatus("ok");
-        }catch(err){
-          console.error(err);
-          setSyncStatus("erreur");
-        }
-      }, 350);
-    }
-
-    function applyRemoteAppData(remote){
-      isApplyingRemote = true;
-      try{
-        appData = remote;
-        if(!appData || typeof appData !== "object") appData = { championships: [], activeId: null };
-        if(!Array.isArray(appData.championships)) appData.championships = [];
-        if(!appData.championships.length){
-          createNewChampionship("Saison 1", { skipSave:true });
-        }
-        if(!appData.activeId){
-          appData.activeId = appData.championships[0].id;
-        }
-        appData.championships.forEach(ch => ensureCalendar(ch));
-        saveLocal();
-        refreshAll();
-      } finally {
-        isApplyingRemote = false;
-      }
-    }
-
-    function initFirestoreListener(){
-      setSyncStatus("sync…");
-      docRef.onSnapshot((snap) => {
-        hasInitialSnapshot = true;
-
-        if(!snap.exists){
-          scheduleRemoteSave();
-          setSyncStatus("ok");
-          return;
-        }
-
-        const data = snap.data() || {};
-        if(data && data.appData){
-          applyRemoteAppData(data.appData);
-          setSyncStatus("ok");
-        } else {
-          scheduleRemoteSave();
-          setSyncStatus("ok");
-        }
-      }, (err) => {
-        console.error(err);
-        setSyncStatus("erreur");
-        hasInitialSnapshot = true;
-      });
-    }
-
-    /* ===========================
-       Save global (local + remote + UI)
-    ============================ */
     function save(){
       saveLocal();
       refreshAll();
       scheduleRemoteSave();
     }
 
-    async function resetAll(){
-      if(!confirm("Supprimer toutes les données de cette SALLE (pour tout le monde) ?")) return;
-      try{
-        await docRef.delete();
-      }catch(e){
-        try{
-          await docRef.set(
-            { appData: { championships: [], activeId: null }, updatedAt: firebase.firestore.FieldValue.serverTimestamp() },
-            { merge:true }
-          );
-        }catch(err){ console.error(err); }
-      }
-      localStorage.removeItem(STORAGE_KEY);
-      location.reload();
-    }
-
-    /* ===========================
-       Championnats
-    ============================ */
-    function createNewChampionship(forcedName=null, opts={ skipSave:false }){
-      const name = forcedName ?? prompt("Nom du championnat :");
-      if(!name) return;
-
-      const id = Date.now();
-      const champ = {
-        id,
-        name,
-        createdAt: new Date().toISOString(),
-        races: CIRCUITS_2025.map(buildRaceFromCircuit)
-      };
-
-      appData.championships.push(champ);
-      appData.activeId = id;
-
-      if(!opts.skipSave) save();
-    }
-
-    function duplicateChampionship(){
-      const base = getActiveChamp();
-      if(!base) return;
-
-      const name = prompt("Nom de la nouvelle saison (copie calendrier) :", `${base.name} (copie)`) || "";
-      if(!name.trim()) return;
-
-      const id = Date.now();
-      const champ = {
-        id,
-        name: name.trim(),
-        createdAt: new Date().toISOString(),
-        races: base.races.map((r, idx) => {
-          return buildRaceFromCircuit({
-            id: r.id, name: r.name, country: r.country, countryCode: r.countryCode,
-            city: r.city, dates: r.dates, laps: r.laps, turns: r.turns, lengthKm: r.lengthKm, drs: r.drs,
-            tags: r.tags || [], accent: r.accent || "#E10600"
-          }, idx);
-        })
-      };
-
-      appData.championships.push(champ);
-      appData.activeId = id;
-      currentRaceIndex = 0;
-      save();
-    }
-
-    function getActiveChamp(){
-      return appData.championships.find(c => c.id === appData.activeId);
-    }
-
-    function populateChampionshipSelect(){
-      const sel = document.getElementById("championshipSelect");
-      sel.innerHTML = "";
-      appData.championships.forEach(c => {
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.name;
-        if(c.id === appData.activeId) opt.selected = true;
-        sel.appendChild(opt);
-      });
-      sel.onchange = () => {
-        appData.activeId = Number(sel.value);
-        currentRaceIndex = 0;
-        save();
-      };
-    }
-
-    /* ===========================
-       Points / stats
-    ============================ */
-    function seasonPoints(driverId, champ){
-      let total = 0;
-      champ.races.forEach(r => {
-        if(!r.done) return;
-        const res = r.results?.[driverId];
-        total += (res?.pts ?? 0);
-      });
-      return total;
-    }
-
-    function breakdownForDriver(driverId, champ){
-      const out = [];
-      champ.races.forEach(r => {
-        if(!r.done) return;
-        const res = r.results?.[driverId];
-        const pos = res?.racePos ?? null;
-        if(pos === null || pos === undefined) return;
-        out.push({ gp: `${r.country} • ${r.name}`, pos, pts: res?.pts ?? 0 });
-      });
-      return out;
-    }
-
-    /* ===========================
-       RENDER: pilots table
-    ============================ */
-    function renderPilotsTable(){
-      const champ = getActiveChamp();
-      const body = document.getElementById("pilotsBody");
-      body.innerHTML = "";
-
-      const orderMode = document.getElementById("orderSelect").value;
-
-      let list = GRID_DRIVERS.map(d => ({
-        ...d,
-        points: seasonPoints(d.id, champ)
-      }));
-
-      if(orderMode === "points"){
-        const originalIndex = new Map(GRID_DRIVERS.map((d,i)=>[d.id,i]));
-        list.sort((a,b) => (b.points - a.points) || (originalIndex.get(a.id) - originalIndex.get(b.id)));
-      }
-
-      const podiumIds = (orderMode === "points") ? [list[0]?.id, list[1]?.id, list[2]?.id] : [];
-
-      list.forEach((d, i) => {
-        const rank = i + 1;
-        const row = document.createElement("div");
-        row.className = "ea-row ea-data";
-
-        if(orderMode === "points"){
-          const pIndex = podiumIds.indexOf(d.id);
-          if(pIndex === 0) row.classList.add("podium-1","podium-animate");
-          if(pIndex === 1) row.classList.add("podium-2","podium-animate");
-          if(pIndex === 2) row.classList.add("podium-3","podium-animate");
-        }
-
-        const medal =
-          (orderMode === "points" && rank === 1) ? "🥇" :
-          (orderMode === "points" && rank === 2) ? "🥈" :
-          (orderMode === "points" && rank === 3) ? "🥉" : "";
-
-        const portraitPath = `assets/portraits/${d.id}.png`;
-        const teamLogoPath = `assets/teams/${d.teamKey}.png`;
-
-        row.innerHTML = `
-          <div class="rank">${rank}<span class="medal">${medal}</span></div>
-
-          <div class="pilot-cell">
-            <div class="portrait">
-              <img src="${portraitPath}" alt="" onerror="this.style.display='none'; this.parentNode.querySelector('.fallback').style.display='flex';">
-              <div class="fallback" style="display:none;">${initials(d.name)}</div>
-            </div>
-            <div style="min-width:0;">
-              <div class="pilot-name">${d.name}</div>
-              <div class="pilot-meta">
-                ${d.teamKey === "ferrari" ? `<span class="sf-badge">SF</span>` : `<span style="opacity:.8;">•</span>`}
-                <span style="font-weight:800; text-transform:uppercase; letter-spacing:1px;">${d.teamName}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="nat">
-            <img src="${d.natImg}" alt="${d.natCode}">
-          </div>
-
-          <div class="team">
-            <div class="team-logo">
-              <img src="${teamLogoPath}" alt="" onerror="this.style.display='none'; this.parentNode.querySelector('.abbr').style.display='block';">
-              <div class="abbr" style="display:none;">${d.teamAbbr}</div>
-            </div>
-            ${d.teamName}
-          </div>
-
-          <div class="points">
-            <div class="points-box"
-                 title="Survolez pour détail par GP"
-                 data-driver="${d.id}"
-                 data-name="${d.name}">
-              ${d.points}
-            </div>
-          </div>
-        `;
-        body.appendChild(row);
-      });
-
-      document.querySelectorAll(".points-box").forEach(el => {
-        el.addEventListener("mouseenter", onPointsEnterDriver);
-        el.addEventListener("mousemove", onPointsMove);
-        el.addEventListener("mouseleave", onPointsLeave);
-      });
-    }
-
-    function initials(name){
-      const parts = name.trim().split(/\s+/);
-      const a = parts[0]?.[0] ?? "";
-      const b = parts[1]?.[0] ?? "";
-      return (a + b).toUpperCase();
-    }
-
-    /* ===========================
-       CONSTRUCTORS
-    ============================ */
-    function renderConstructorsTable(){
-      const champ = getActiveChamp();
-      const body = document.getElementById("constructorsBody");
-      body.innerHTML = "";
-
-      const byTeam = new Map();
-      GRID_DRIVERS.forEach(d => {
-        const pts = seasonPoints(d.id, champ);
-        if(!byTeam.has(d.teamKey)){
-          byTeam.set(d.teamKey, { teamKey:d.teamKey, teamName:d.teamName, teamAbbr:d.teamAbbr, points:0 });
-        }
-        byTeam.get(d.teamKey).points += pts;
-      });
-
-      let list = Array.from(byTeam.values());
-      list.sort((a,b) => b.points - a.points);
-
-      list.forEach((t, i) => {
-        const rank = i + 1;
-        const teamLogoPath = `assets/teams/${t.teamKey}.png`;
-        const row = document.createElement("div");
-        row.className = "ea-row ea-data";
-        row.style.gridTemplateColumns = "90px 1.8fr 220px";
-
-        if(t.teamKey === "ferrari"){
-          row.style.borderLeft = "4px solid rgba(225,6,0,1)";
-        }
-
-        row.innerHTML = `
-          <div class="rank">${rank}</div>
-          <div class="pilot-cell">
-            <div class="team-logo" style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);">
-              <img src="${teamLogoPath}" alt="" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=&quot;font-weight:900;letter-spacing:1px;&quot;>${t.teamAbbr}</div>';">
-            </div>
-            <div style="min-width:0;">
-              <div class="pilot-name" style="text-transform:uppercase; letter-spacing:1px;">${t.teamName}</div>
-              <div class="pilot-meta">
-                ${t.teamKey === "ferrari"
-                  ? `<span class="sf-badge">SF</span><span style="font-weight:800;">Raphaël + Moïse + Josh</span>`
-                  : `<span style="opacity:.8;">•</span><span style="font-weight:800;">Constructeurs</span>`
-                }
-              </div>
-            </div>
-          </div>
-          <div class="points">
-            <div class="points-box" style="width:160px;">${t.points}</div>
-          </div>
-        `;
-        body.appendChild(row);
-      });
-    }
-
-    /* ===========================
-       Tooltip (détail points)
-    ============================ */
-    const tt = () => document.getElementById("tooltip");
-
-    function onPointsEnterDriver(e){
-      const champ = getActiveChamp();
-      const driverId = e.currentTarget.dataset.driver;
-      const name = e.currentTarget.dataset.name;
-
-      const total = seasonPoints(driverId, champ);
-      const breakdown = breakdownForDriver(driverId, champ);
-
-      let html = `
-        <div class="tt-title">
-          <strong>${name} • Détail</strong>
-          <div class="tt-total">${total} pts</div>
-        </div>
-        <div class="tt-list">
-      `;
-
-      if(!breakdown.length){
-        html += `<div style="color:var(--muted); font-weight:700; padding:6px 0;">Aucune course enregistrée.</div>`;
-      } else {
-        breakdown.forEach(item => {
-          html += `
-            <div class="tt-item">
-              <div class="gpname">${item.gp}</div>
-              <div class="gpmeta">
-                <span class="chip">P${item.pos}</span>
-                <span class="chip">${item.pts} pts</span>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      html += `</div>`;
-      const node = tt();
-      node.innerHTML = html;
-      node.style.display = "block";
-      positionTooltip(e);
-    }
-
-    function onPointsMove(e){ positionTooltip(e); }
-    function onPointsLeave(){ tt().style.display = "none"; }
-
-    function positionTooltip(e){
-      const node = tt();
-      const pad = 14;
-      const w = node.offsetWidth;
-      const h = node.offsetHeight;
-
-      let x = e.clientX + 18;
-      let y = e.clientY + 18;
-
-      if(x + w + pad > window.innerWidth) x = e.clientX - w - 18;
-      if(y + h + pad > window.innerHeight) y = e.clientY - h - 18;
-
-      node.style.left = x + "px";
-      node.style.top = y + "px";
-    }
-
-    /* ===========================
-       CALENDRIER
-    ============================ */
-    function populateGPSelect(){
-      const champ = getActiveChamp();
-      const sel = document.getElementById("gpSelect");
-      sel.innerHTML = "";
-      champ.races.forEach((r, idx) => {
-        const opt = document.createElement("option");
-        opt.value = idx;
-        opt.textContent = `${String(r.round).padStart(2,"0")} • ${r.name}`;
-        sel.appendChild(opt);
-      });
-      sel.value = String(Math.min(currentRaceIndex, champ.races.length-1));
-      sel.onchange = () => { setCurrentGP(Number(sel.value), { scrollSidebar:true }); };
-    }
-
-    function renderGPSidebar(){
-      const champ = getActiveChamp();
-      const wrap = document.getElementById("gpSidebarList");
-      if(!wrap) return;
-      wrap.innerHTML = "";
-
-      champ.races.forEach((r, idx) => {
-        const item = document.createElement("div");
-        item.className = "gp-side-item" + (idx === currentRaceIndex ? " active" : "");
-        item.title = `${String(r.round).padStart(2,"0")} • ${r.country} — ${r.name}`;
-        item.onclick = () => setCurrentGP(idx, { scrollSidebar:false });
-
-        const localFlag = `assets/circuits/flags/${r.countryCode}.png`;
-        const cdnFlag = `https://flagcdn.com/w160/${r.countryCode}.png`;
-
-        item.innerHTML = `
-          <div class="gp-side-flag">
-            <img src="${localFlag}" alt="${r.country}" onerror="this.src='${cdnFlag}'">
-          </div>
-          <div class="gp-side-round">R${String(r.round).padStart(2,"0")}</div>
-          <div class="gp-side-name">${r.country}</div>
-          <div class="gp-side-dot ${r.done ? "done" : ""}"></div>
-        `;
-        wrap.appendChild(item);
-      });
-
-      scrollSidebarToActive();
-    }
-
-    function scrollSidebarToActive(){
-      const wrap = document.getElementById("gpSidebarList");
-      if(!wrap) return;
-      const active = wrap.querySelector(".gp-side-item.active");
-      if(active) active.scrollIntoView({ block:"nearest", inline:"nearest", behavior:"smooth" });
-    }
-
-    function setCurrentGP(idx, opts={ scrollSidebar:true }){
-      const champ = getActiveChamp();
-      if(!champ) return;
-      const max = champ.races.length - 1;
-      currentRaceIndex = Math.max(0, Math.min(idx, max));
-
-      const sel = document.getElementById("gpSelect");
-      if(sel) sel.value = String(currentRaceIndex);
-
-      renderCalendarCard();
-      renderGPSidebar();
-
-      if(opts.scrollSidebar) scrollSidebarToActive();
-    }
-
-    function prevGP(){ setCurrentGP(currentRaceIndex - 1); }
-    function nextGP(){ setCurrentGP(currentRaceIndex + 1); }
-
-    function renderCalendarCard(){
-      const champ = getActiveChamp();
-      const r = champ.races[currentRaceIndex];
-      if(!r) return;
-
-      setGpTheme(r.accent || "#E10600");
-
-      const pill = document.getElementById("gpStatusPill");
-      pill.className = `pill ${r.done ? "done" : "pending"}`;
-      pill.textContent = r.done ? "Fait" : "À venir";
-
-      document.getElementById("gpTitle").textContent = r.name;
-      document.getElementById("gpSub").textContent = `${r.country} • ${r.dates}`;
-
-      document.getElementById("statCountry").textContent = r.country;
-      document.getElementById("statLaps").textContent = r.laps ?? "—";
-      document.getElementById("statTurns").textContent = r.turns ?? "—";
-      document.getElementById("statLength").textContent = `${r.lengthKm ?? "—"} km`;
-      document.getElementById("statDrs").textContent = r.drs ?? "—";
-      document.getElementById("statCity").textContent = r.city ?? "—";
-      document.getElementById("statDates").textContent = r.dates ?? "—";
-
-      const tags = document.getElementById("gpTags");
-      tags.innerHTML = "";
-      (r.tags || []).forEach((t, idx) => {
-        const div = document.createElement("div");
-        div.className = "tag" + (idx === 0 ? " accent" : "");
-        div.textContent = t;
-        tags.appendChild(div);
-      });
-
-      const mapImg = document.getElementById("gpMapImg");
-      const mapPlaceholder = document.getElementById("gpMapPlaceholder");
-      const mapPath = `assets/circuits/maps/${r.id}.png`;
-
-      mapPlaceholder.style.display = "none";
-      mapImg.style.display = "block";
-      mapImg.src = mapPath;
-
-      const countryImg = document.getElementById("gpCountryImg");
-      const localFlag = `assets/circuits/flags/${r.countryCode}.png`;
-      const cdnFlag = `https://flagcdn.com/w160/${r.countryCode}.png`;
-      countryImg.dataset.fallback = cdnFlag;
-      countryImg.src = localFlag;
-
-      renderMiniResults(r);
-
-      // MODIF: Total Ferrari inclut Josh
-      const ferrariTotal = (r.results?.raph?.pts ?? 0) + (r.results?.moise?.pts ?? 0) + (r.results?.josh?.pts ?? 0);
-      document.getElementById("ferrariGpTotal").textContent = ferrariTotal;
-    }
-
-    function renderMiniResults(r){
-      const mk = (who, res) => {
-        const qpos = res?.qualPos ?? null;
-        const qtime = (res?.qualTime || "").trim();
-        const rpos = res?.racePos ?? null;
-        const gap = (res?.gapToP1 || "").trim();
-        const best = (res?.bestRaceTime || "").trim();
-        const pts = res?.pts ?? 0;
-
-        const qualText = (qpos || qtime)
-          ? `${qpos ? ("P"+qpos) : "—"}${qtime ? (" • "+qtime) : ""}`
-          : "—";
-
-        return `
-          <div class="who">
-            <span class="sf-badge">SF</span> ${who}
-            <span style="margin-left:auto; font-weight:900; color:rgba(255,255,255,0.85);">+${pts} pts</span>
-          </div>
-          <div class="row"><span class="muted">Qualif</span><span>${qualText}</span></div>
-          <div class="row"><span class="muted">Course</span><span>${rpos ? ("P"+rpos) : "—"}</span></div>
-          <div class="row"><span class="muted">Écart P1</span><span>${gap ? gap : "—"}</span></div>
-          <div class="row"><span class="muted">Meilleur temps</span><span>${best ? best : "—"}</span></div>
-        `;
-      };
-
-      document.getElementById("miniRaph").innerHTML = mk("Raphaël", r.results?.raph);
-      document.getElementById("miniMoise").innerHTML = mk("Moïse", r.results?.moise);
-      document.getElementById("miniJosh").innerHTML = mk("Josh", r.results?.josh);
-    }
-
-    /* ===========================
-       GP Modal (saisie)
-    ============================ */
-    function openRaceModal(i){
-      if(typeof i === "number") currentRaceIndex = i;
-      const champ = getActiveChamp();
-      const r = champ.races[currentRaceIndex];
-
-      document.getElementById("modalTitle").textContent = `${r.country} • ${r.name}`;
-
-      const rr = r.results?.raph || emptyDriverResult();
-      const rm = r.results?.moise || emptyDriverResult();
-      const rj = r.results?.josh || emptyDriverResult(); // MODIF: Josh added
-
-      // Raph
-      document.getElementById("q_pos_raph").value = rr.qualPos ?? "";
-      document.getElementById("q_time_raph").value = rr.qualTime ?? "";
-      document.getElementById("r_pos_raph").value = rr.racePos ?? "";
-      document.getElementById("gap_raph").value = rr.gapToP1 ?? "";
-      document.getElementById("best_race_raph").value = rr.bestRaceTime ?? "";
-
-      // Moise
-      document.getElementById("q_pos_moise").value = rm.qualPos ?? "";
-      document.getElementById("q_time_moise").value = rm.qualTime ?? "";
-      document.getElementById("r_pos_moise").value = rm.racePos ?? "";
-      document.getElementById("gap_moise").value = rm.gapToP1 ?? "";
-      document.getElementById("best_race_moise").value = rm.bestRaceTime ?? "";
-
-      // Josh (MODIF)
-      document.getElementById("q_pos_josh").value = rj.qualPos ?? "";
-      document.getElementById("q_time_josh").value = rj.qualTime ?? "";
-      document.getElementById("r_pos_josh").value = rj.racePos ?? "";
-      document.getElementById("gap_josh").value = rj.gapToP1 ?? "";
-      document.getElementById("best_race_josh").value = rj.bestRaceTime ?? "";
-
-      const wrap = document.getElementById("otherPositionsWrap");
-      wrap.innerHTML = "";
-
-      GRID_DRIVERS
-        .filter(d => !d.isFerrariPlayer) // Exclure les joueurs Ferrari
-        .forEach(d => {
-          const res = r.results?.[d.id] || emptyDriverResult();
-          const row = document.createElement("div");
-          row.className = "other-row";
-          row.innerHTML = `
-            <div class="name">${d.name}</div>
-            <input type="number"
-                   min="1" max="20"
-                   inputmode="numeric"
-                   data-driver="${d.id}"
-                   placeholder="P"
-                   value="${res.racePos ?? ""}">
-          `;
-          wrap.appendChild(row);
-        });
-
-      document.getElementById("raceModal").style.display = "flex";
-    }
-
-    function closeRaceModal(){
-      document.getElementById("raceModal").style.display = "none";
-    }
-    function modalBackdropClose(e){
-      if(e.target.id === "raceModal") closeRaceModal();
-    }
-
-    function saveRace(e){
-      e.preventDefault();
-      const champ = getActiveChamp();
-      const r = champ.races[currentRaceIndex];
-      if(!r.results) r.results = buildResultsSkeleton();
-
-      // Raphaël
-      const qpr = parseInt(document.getElementById("q_pos_raph").value, 10);
-      const rpr = parseInt(document.getElementById("r_pos_raph").value, 10);
-      r.results.raph.qualPos = Number.isFinite(qpr) ? qpr : null;
-      r.results.raph.qualTime = (document.getElementById("q_time_raph").value || "").trim();
-      r.results.raph.racePos = Number.isFinite(rpr) ? rpr : null;
-      r.results.raph.gapToP1 = (document.getElementById("gap_raph").value || "").trim();
-      r.results.raph.bestRaceTime = (document.getElementById("best_race_raph").value || "").trim();
-      r.results.raph.pts = computePointsFromPos(r.results.raph.racePos);
-
-      // Moïse
-      const qpm = parseInt(document.getElementById("q_pos_moise").value, 10);
-      const rpm = parseInt(document.getElementById("r_pos_moise").value, 10);
-      r.results.moise.qualPos = Number.isFinite(qpm) ? qpm : null;
-      r.results.moise.qualTime = (document.getElementById("q_time_moise").value || "").trim();
-      r.results.moise.racePos = Number.isFinite(rpm) ? rpm : null;
-      r.results.moise.gapToP1 = (document.getElementById("gap_moise").value || "").trim();
-      r.results.moise.bestRaceTime = (document.getElementById("best_race_moise").value || "").trim();
-      r.results.moise.pts = computePointsFromPos(r.results.moise.racePos);
-
-      // Josh (MODIF)
-      const qpj = parseInt(document.getElementById("q_pos_josh").value, 10);
-      const rpj = parseInt(document.getElementById("r_pos_josh").value, 10);
-      r.results.josh.qualPos = Number.isFinite(qpj) ? qpj : null;
-      r.results.josh.qualTime = (document.getElementById("q_time_josh").value || "").trim();
-      r.results.josh.racePos = Number.isFinite(rpj) ? rpj : null;
-      r.results.josh.gapToP1 = (document.getElementById("gap_josh").value || "").trim();
-      r.results.josh.bestRaceTime = (document.getElementById("best_race_josh").value || "").trim();
-      r.results.josh.pts = computePointsFromPos(r.results.josh.racePos);
-
-      // Autres pilotes : position course uniquement
-      document.querySelectorAll("#otherPositionsWrap input[data-driver]").forEach(inp => {
-        const id = inp.dataset.driver;
-        const v = parseInt(inp.value, 10);
-        r.results[id] = r.results[id] || emptyDriverResult();
-        r.results[id].racePos = Number.isFinite(v) ? v : null;
-        r.results[id].pts = computePointsFromPos(r.results[id].racePos);
-      });
-
-      // done si au moins une position course saisie
-      r.done = Object.values(r.results).some(x => x && x.racePos !== null && x.racePos !== undefined);
-
-      save();
-      closeRaceModal();
-    }
-
-    /* ===========================
-       Export / Import
-    ============================ */
-    function exportData(){
-      document.getElementById("dataBox").value = JSON.stringify(appData, null, 2);
-    }
-
-    function importData(){
-      const box = document.getElementById("dataBox");
-      if(!box.value.trim()){
-        alert("Colle un JSON exporté dans la zone.");
-        return;
-      }
-      try{
-        const parsed = JSON.parse(box.value);
-        if(!parsed?.championships?.length) throw new Error("bad");
-        appData = parsed;
-        appData.championships.forEach(ch => ensureCalendar(ch));
-        if(!appData.activeId) appData.activeId = appData.championships[0].id;
-        currentRaceIndex = 0;
-        save();
-        alert("Import OK ! (La salle est synchronisée)");
-      }catch(e){
-        alert("Import impossible : JSON invalide.");
-      }
-    }
-
-    /* ===========================
-       Tabs
-    ============================ */
-    function switchTab(id){
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-
-      const nav = document.querySelectorAll(".nav-item");
-      if(id === "pilots") nav[0].classList.add("active");
-      if(id === "constructors") nav[1].classList.add("active");
-      if(id === "calendar") nav[2].classList.add("active");
-      if(id === "data") nav[3].classList.add("active");
-    }
-
-    /* ===========================
-       Refresh
-    ============================ */
     function refreshAll(){
       populateChampionshipSelect();
       populateGPSelect();
@@ -2498,33 +1784,387 @@
       renderGPSidebar();
     }
 
-    document.getElementById("orderSelect").addEventListener("change", () => {
-      renderPilotsTable();
-    });
-
-    /* Navigation clavier */
-    document.addEventListener("keydown", (e) => {
-      const isCalendarActive = document.getElementById("calendar")?.classList.contains("active");
-      if(!isCalendarActive) return;
-
-      const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
-      if(["input","textarea","select"].includes(tag)) return;
-
-      const modalOpen = (document.getElementById("raceModal")?.style.display === "flex");
-      if(modalOpen) return;
-
-      if(e.key === "ArrowLeft"){ e.preventDefault(); prevGP(); }
-      if(e.key === "ArrowRight"){ e.preventDefault(); nextGP(); }
-    });
-
     /* ===========================
-       Init
+       Renderers
     ============================ */
+    function renderPilotsTable(){
+      const champ = getActiveChamp();
+      const grid = getGrid();
+      const body = document.getElementById("pilotsBody");
+      body.innerHTML = "";
+
+      const orderMode = document.getElementById("orderSelect").value;
+
+      let list = grid.map(d => {
+        // Calculate season points
+        let total = 0;
+        champ.races.forEach(r => {
+          if(r.done && r.results[d.id]) total += r.results[d.id].pts;
+        });
+        return { ...d, points: total };
+      });
+
+      if(orderMode === "points"){
+        list.sort((a,b) => b.points - a.points);
+      }
+
+      list.forEach((d, i) => {
+        const rank = i + 1;
+        const row = document.createElement("div");
+        row.className = "ea-row ea-data";
+        
+        if(orderMode === "points" && i < 3){
+          row.classList.add("podium-"+(i+1), "podium-animate");
+        }
+
+        const portraitPath = `assets/portraits/${d.id}.png`;
+        const teamLogoPath = `assets/teams/${d.teamKey}.png`;
+
+        row.innerHTML = `
+          <div class="rank">${rank}</div>
+          <div class="pilot-cell">
+            <div class="portrait">
+              <img src="${portraitPath}" alt="" onerror="this.style.display='none'; this.parentNode.querySelector('.fallback').style.display='flex';">
+              <div class="fallback" style="display:none;">${d.name.substring(0,2).toUpperCase()}</div>
+            </div>
+            <div style="min-width:0;">
+              <div class="pilot-name">${d.name}</div>
+              <div class="pilot-meta">
+                ${d.isPlayer ? '<span class="sf-badge">P</span>' : '<span style="opacity:.5;">•</span>'}
+                <span style="font-weight:800; text-transform:uppercase; letter-spacing:1px;">${d.teamName}</span>
+              </div>
+            </div>
+          </div>
+          <div class="nat"><img src="${d.natImg}" alt=""></div>
+          <div class="team">
+            <div class="team-logo"><img src="${teamLogoPath}" alt=""></div>
+            ${d.teamName}
+          </div>
+          <div class="points"><div class="points-box">${d.points}</div></div>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    function renderConstructorsTable(){
+      const champ = getActiveChamp();
+      const grid = getGrid();
+      const body = document.getElementById("constructorsBody");
+      body.innerHTML = "";
+
+      const byTeam = {};
+      grid.forEach(d => {
+        if(!byTeam[d.teamKey]) byTeam[d.teamKey] = { ...d, points:0 };
+        // Add points
+        let total = 0;
+        champ.races.forEach(r => {
+          if(r.done && r.results[d.id]) total += r.results[d.id].pts;
+        });
+        byTeam[d.teamKey].points += total;
+      });
+
+      const list = Object.values(byTeam).sort((a,b) => b.points - a.points);
+
+      list.forEach((t, i) => {
+        const row = document.createElement("div");
+        row.className = "ea-row ea-data";
+        row.style.gridTemplateColumns = "90px 1.8fr 220px";
+        const teamLogoPath = `assets/teams/${t.teamKey}.png`;
+
+        row.innerHTML = `
+          <div class="rank">${i+1}</div>
+          <div class="pilot-cell">
+            <div class="team-logo" style="width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,0.05);">
+              <img src="${teamLogoPath}" alt="">
+            </div>
+            <div style="min-width:0;">
+              <div class="pilot-name" style="text-transform:uppercase;">${t.teamName}</div>
+            </div>
+          </div>
+          <div class="points"><div class="points-box" style="width:160px;">${t.points}</div></div>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    function renderCalendarCard(){
+      const champ = getActiveChamp();
+      const r = champ.races[currentRaceIndex];
+      setGpTheme(r.accent || "#E10600");
+
+      const pill = document.getElementById("gpStatusPill");
+      pill.className = `pill ${r.done ? "done" : "pending"}`;
+      pill.textContent = r.done ? "Fait" : "À venir";
+
+      document.getElementById("gpTitle").textContent = r.name;
+      document.getElementById("gpSub").textContent = `${r.country} • ${r.dates}`;
+      document.getElementById("statCountry").textContent = r.country;
+      document.getElementById("statLaps").textContent = r.laps;
+      document.getElementById("statTurns").textContent = r.turns;
+      document.getElementById("statLength").textContent = r.lengthKm;
+      document.getElementById("statDrs").textContent = r.drs;
+      document.getElementById("statCity").textContent = r.city;
+      document.getElementById("statDates").textContent = r.dates;
+
+      // Tags
+      const tags = document.getElementById("gpTags");
+      tags.innerHTML = "";
+      r.tags.forEach(t => {
+        const div = document.createElement("div");
+        div.className = "tag";
+        div.textContent = t;
+        tags.appendChild(div);
+      });
+
+      // Images
+      const mapPath = `assets/circuits/maps/${r.id}.png`;
+      const flagPath = `assets/circuits/flags/${r.countryCode}.png`;
+      const mapImg = document.getElementById("gpMapImg");
+      const ph = document.getElementById("gpMapPlaceholder");
+      mapImg.src = mapPath;
+      mapImg.style.display="block"; 
+      ph.style.display="none"; // Simple toggle logic handled by onerror in HTML
+      
+      document.getElementById("gpCountryImg").src = flagPath;
+
+      // Mini Results for Players
+      ["raph","moise","josh"].forEach(pid => {
+        const dRes = r.results[pid] || emptyDriverResult();
+        const pts = dRes.pts;
+        const qStr = dRes.qualPos ? `P${dRes.qualPos}` : "—";
+        const rStr = dRes.racePos ? `P${dRes.racePos}` : "—";
+        
+        // Find player team info in current grid to color badge
+        const grid = getGrid();
+        const pInfo = grid.find(g => g.id === pid);
+        const teamName = pInfo ? pInfo.teamName : "??";
+
+        const html = `
+          <div class="who">
+            <span class="sf-badge">P</span> ${pid}
+            <span style="margin-left:auto; font-weight:900; opacity:0.8;">+${pts}</span>
+          </div>
+          <div class="row"><span class="muted">Qualif</span><span>${qStr}</span></div>
+          <div class="row"><span class="muted">Course</span><span>${rStr}</span></div>
+          <div class="row"><span class="muted">Écart</span><span>${dRes.gapToP1||"—"}</span></div>
+        `;
+        const mini = document.getElementById(pid === "raph" ? "miniRaph" : (pid==="moise" ? "miniMoise" : "miniJosh"));
+        mini.innerHTML = html;
+      });
+    }
+
+    function openRaceModal(i){
+      if(typeof i === "number") currentRaceIndex = i;
+      const champ = getActiveChamp();
+      const r = champ.races[currentRaceIndex];
+      const grid = getGrid();
+
+      document.getElementById("modalTitle").textContent = `${r.country} • ${r.name}`;
+
+      // Fill Players
+      ["raph","moise","josh"].forEach(pid => {
+        const res = r.results[pid] || emptyDriverResult();
+        document.getElementById(`q_pos_${pid}`).value = res.qualPos || "";
+        document.getElementById(`q_time_${pid}`).value = res.qualTime || "";
+        document.getElementById(`r_pos_${pid}`).value = res.racePos || "";
+        document.getElementById(`gap_${pid}`).value = res.gapToP1 || "";
+        document.getElementById(`best_race_${pid}`).value = res.bestRaceTime || "";
+        
+        // Update badge color/text based on team
+        const pData = grid.find(g => g.id === pid);
+        const badge = document.getElementById(pid==="raph"?"badgeRaph":(pid==="moise"?"badgeMoise":"badgeJosh"));
+        if(pData){
+           badge.textContent = pData.teamAbbr;
+           // Optional: Dynamic colors could be added here
+        }
+      });
+
+      // Fill Others
+      const wrap = document.getElementById("otherPositionsWrap");
+      wrap.innerHTML = "";
+      
+      grid.filter(d => !d.isPlayer).forEach(d => {
+        const res = r.results[d.id] || emptyDriverResult();
+        const row = document.createElement("div");
+        row.className = "other-row";
+        row.innerHTML = `
+          <div class="name">${d.name}</div>
+          <input type="number" min="1" max="20" data-driver="${d.id}" value="${res.racePos||""}" placeholder="P">
+        `;
+        wrap.appendChild(row);
+      });
+
+      document.getElementById("raceModal").style.display = "flex";
+    }
+
+    function closeRaceModal(){ document.getElementById("raceModal").style.display = "none"; }
+    function modalBackdropClose(e){ if(e.target.id==="raceModal") closeRaceModal(); }
+
+    function saveRace(e){
+      e.preventDefault();
+      const champ = getActiveChamp();
+      const r = champ.races[currentRaceIndex];
+      const grid = getGrid();
+
+      // Save Players
+      ["raph","moise","josh"].forEach(pid => {
+        if(!r.results[pid]) r.results[pid] = emptyDriverResult();
+        const res = r.results[pid];
+        res.qualPos = parseInt(document.getElementById(`q_pos_${pid}`).value) || null;
+        res.qualTime = document.getElementById(`q_time_${pid}`).value;
+        res.racePos = parseInt(document.getElementById(`r_pos_${pid}`).value) || null;
+        res.gapToP1 = document.getElementById(`gap_${pid}`).value;
+        res.bestRaceTime = document.getElementById(`best_race_${pid}`).value;
+        res.pts = computePointsFromPos(res.racePos);
+      });
+
+      // Save Others
+      const inputs = document.querySelectorAll("#otherPositionsWrap input");
+      inputs.forEach(inp => {
+        const did = inp.dataset.driver;
+        const pos = parseInt(inp.value);
+        if(!r.results[did]) r.results[did] = emptyDriverResult();
+        r.results[did].racePos = pos || null;
+        r.results[did].pts = computePointsFromPos(pos);
+      });
+
+      // Check done
+      r.done = Object.values(r.results).some(x => x.racePos);
+      
+      save();
+      closeRaceModal();
+    }
+
+    // --- Basic Helpers for UI ---
+    function populateChampionshipSelect(){
+      const s = document.getElementById("championshipSelect");
+      s.innerHTML = "";
+      appData.championships.forEach(c => {
+        const o = document.createElement("option");
+        o.value = c.id; o.textContent = c.name;
+        if(c.id === appData.activeId) o.selected = true;
+        s.appendChild(o);
+      });
+      s.onchange = () => { appData.activeId = Number(s.value); currentRaceIndex=0; save(); };
+    }
+    
+    function duplicateChampionship(){
+      const base = getActiveChamp();
+      const id = Date.now();
+      const copy = JSON.parse(JSON.stringify(base)); // Deep copy
+      copy.id = id;
+      copy.name += " (Copie)";
+      // Reset results? Maybe keep them for full duplicate, or reset for new season. 
+      // User asked for "Duplicate", usually implies full copy or template. Let's do full copy.
+      appData.championships.push(copy);
+      appData.activeId = id;
+      save();
+    }
+
+    function populateGPSelect(){
+      const s = document.getElementById("gpSelect");
+      s.innerHTML = "";
+      const c = getActiveChamp();
+      c.races.forEach((r,i) => {
+        const o = document.createElement("option");
+        o.value = i; o.textContent = `${r.round} • ${r.name}`;
+        s.appendChild(o);
+      });
+      s.value = currentRaceIndex;
+      s.onchange = () => { setCurrentGP(Number(s.value), {scrollSidebar:true}); };
+    }
+
+    function renderGPSidebar(){
+      const c = getActiveChamp();
+      const w = document.getElementById("gpSidebarList");
+      w.innerHTML = "";
+      c.races.forEach((r,i) => {
+        const d = document.createElement("div");
+        d.className = "gp-side-item" + (i===currentRaceIndex?" active":"");
+        d.onclick = () => setCurrentGP(i, {scrollSidebar:false});
+        d.innerHTML = `
+          <div class="gp-side-flag"><img src="assets/circuits/flags/${r.countryCode}.png" onerror="this.src='https://flagcdn.com/w80/${r.countryCode}.png'"></div>
+          <div class="gp-side-round">R${r.round}</div>
+          <div class="gp-side-name">${r.country}</div>
+          <div class="gp-side-dot ${r.done?'done':''}"></div>
+        `;
+        w.appendChild(d);
+      });
+      scrollSidebarToActive();
+    }
+
+    function scrollSidebarToActive(){
+      const el = document.querySelector(".gp-side-item.active");
+      if(el) el.scrollIntoView({behavior:"smooth", block:"nearest"});
+    }
+
+    function setCurrentGP(i, opts){
+      currentRaceIndex = i;
+      document.getElementById("gpSelect").value = i;
+      renderCalendarCard();
+      renderGPSidebar();
+      if(opts && opts.scrollSidebar) scrollSidebarToActive();
+    }
+    function prevGP(){ if(currentRaceIndex>0) setCurrentGP(currentRaceIndex-1, {scrollSidebar:true}); }
+    function nextGP(){ const c=getActiveChamp(); if(currentRaceIndex<c.races.length-1) setCurrentGP(currentRaceIndex+1, {scrollSidebar:true}); }
+
+    function switchTab(id){
+      document.querySelectorAll(".section").forEach(e=>e.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(e=>e.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      // Update nav state simply by index matching is brittle, so just simplistic:
+      if(id==="pilots") document.querySelectorAll(".nav-item")[0].classList.add("active");
+      if(id==="constructors") document.querySelectorAll(".nav-item")[1].classList.add("active");
+      if(id==="calendar") document.querySelectorAll(".nav-item")[2].classList.add("active");
+      if(id==="data") document.querySelectorAll(".nav-item")[3].classList.add("active");
+    }
+
+    function exportData(){ document.getElementById("dataBox").value = JSON.stringify(appData); }
+    function importData(){ 
+      const v = document.getElementById("dataBox").value;
+      if(!v) return;
+      try{
+        appData = JSON.parse(v);
+        save();
+        alert("Import successful");
+      }catch(e){ alert("Invalid JSON"); }
+    }
+
+    // --- Firestore Sync ---
+    function scheduleRemoteSave(){
+      if(isApplyingRemote) return;
+      clearTimeout(remoteSaveTimer);
+      setSyncStatus("sync...");
+      remoteSaveTimer = setTimeout(() => {
+        docRef.set({ appData, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true})
+          .then(() => setSyncStatus("ok"))
+          .catch(() => setSyncStatus("err"));
+      }, 500);
+    }
+
+    function initFirestoreListener(){
+      setSyncStatus("connecting...");
+      docRef.onSnapshot(doc => {
+        if(!doc.exists) { scheduleRemoteSave(); return; }
+        const r = doc.data();
+        if(r.appData) {
+          isApplyingRemote = true;
+          appData = r.appData;
+          loadLocal(); // Re-ensure consistency
+          refreshAll();
+          isApplyingRemote = false;
+          setSyncStatus("ok");
+        }
+      });
+    }
+
     window.addEventListener("load", () => {
       loadLocal();
       refreshAll();
       initFirestoreListener();
     });
+
+    document.getElementById("orderSelect").onchange = renderPilotsTable;
   </script>
 </body>
 </html>
