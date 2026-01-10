@@ -1891,9 +1891,11 @@
       });
     }
 
-    function renderCalendarCard(){
+   function renderCalendarCard(){
       const champ = getActiveChamp();
       const r = champ.races[currentRaceIndex];
+      if(!r) return; // Sécurité ajoutée au cas où
+
       setGpTheme(r.accent || "#E10600");
 
       const pill = document.getElementById("gpStatusPill");
@@ -1913,23 +1915,29 @@
       // Tags
       const tags = document.getElementById("gpTags");
       tags.innerHTML = "";
-      r.tags.forEach(t => {
+      (r.tags || []).forEach(t => { // Ajout de () pour éviter les erreurs si tags est undefined
         const div = document.createElement("div");
         div.className = "tag";
         div.textContent = t;
         tags.appendChild(div);
       });
 
-      // Images
-      const mapPath = `assets/circuits/maps/${r.id}.png`;
-      const flagPath = `assets/circuits/flags/${r.countryCode}.png`;
+      // Images (Map)
       const mapImg = document.getElementById("gpMapImg");
-      const ph = document.getElementById("gpMapPlaceholder");
+      const mapPlaceholder = document.getElementById("gpMapPlaceholder");
+      const mapPath = `assets/circuits/maps/${r.id}.png`;
+
+      mapPlaceholder.style.display = "none";
+      mapImg.style.display = "block";
       mapImg.src = mapPath;
-      mapImg.style.display="block"; 
-      ph.style.display="none"; // Simple toggle logic handled by onerror in HTML
-      
-      document.getElementById("gpCountryImg").src = flagPath;
+
+      // --- CORRECTION ICI (Drapeau) ---
+      const countryImg = document.getElementById("gpCountryImg");
+      // 1. On définit le lien de secours (Internet) AVANT de définir la source
+      countryImg.dataset.fallback = `https://flagcdn.com/w160/${r.countryCode}.png`;
+      // 2. On tente de charger l'image locale
+      countryImg.src = `assets/circuits/flags/${r.countryCode}.png`;
+      // -------------------------------
 
       // Mini Results for Players
       ["raph","moise","josh"].forEach(pid => {
@@ -1941,8 +1949,28 @@
         // Find player team info in current grid to color badge
         const grid = getGrid();
         const pInfo = grid.find(g => g.id === pid);
-        const teamName = pInfo ? pInfo.teamName : "??";
+        // const teamName = pInfo ? pInfo.teamName : "??"; // Inutilisé pour l'instant
 
+        const html = `
+          <div class="who">
+            <span class="sf-badge">P</span> ${pid}
+            <span style="margin-left:auto; font-weight:900; opacity:0.8;">+${pts}</span>
+          </div>
+          <div class="row"><span class="muted">Qualif</span><span>${qStr}</span></div>
+          <div class="row"><span class="muted">Course</span><span>${rStr}</span></div>
+          <div class="row"><span class="muted">Écart</span><span>${dRes.gapToP1||"—"}</span></div>
+        `;
+        // Sécurité pour ne pas planter si l'ID n'existe pas
+        const targetId = pid === "raph" ? "miniRaph" : (pid==="moise" ? "miniMoise" : "miniJosh");
+        const mini = document.getElementById(targetId);
+        if(mini) mini.innerHTML = html;
+      });
+
+      // Total Ferrari (ou total de l'équipe du joueur si différente, mais ici on garde la logique simple)
+      const ferrariTotal = (r.results?.raph?.pts ?? 0) + (r.results?.moise?.pts ?? 0) + (r.results?.josh?.pts ?? 0);
+      const totalEl = document.getElementById("ferrariGpTotal");
+      if(totalEl) totalEl.textContent = ferrariTotal;
+    }
         const html = `
           <div class="who">
             <span class="sf-badge">P</span> ${pid}
