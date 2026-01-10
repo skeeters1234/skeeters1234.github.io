@@ -19,14 +19,11 @@
       --border:#38383F;
       --white:#FFFFFF;
       --muted:#949498;
-
       --gold:#D4AF37;
       --silver:#C0C0C0;
       --bronze:#CD7F32;
-
       --shadow: 0 20px 50px rgba(0,0,0,0.45);
       --radius: 14px;
-
       --gp-accent: rgba(225,6,0,1);
       --gp-accent-soft: rgba(225,6,0,0.20);
       --gp-accent-border: rgba(225,6,0,0.45);
@@ -1524,16 +1521,15 @@
       { id:"josh", name:"Josh", natCode:"gb" }
     ];
 
-    // LEGACY FALLBACK (Old Triple Threat Ferrari)
+    // LEGACY FALLBACK (Old Triple Threat Ferrari) - FIXED
     const LEGACY_GRID = [
-      ...REAL_DRIVERS_2025.filter(d => d.id !== "leclerc" && d.id !== "hamilton"), // Remove real ferrari
+      ...REAL_DRIVERS_2025.filter(d => d.id !== "leclerc" && d.id !== "hamilton"), 
       { id:"raph", name:"Raphaël", natCode:"fr", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
       { id:"moise", name:"Moïse", natCode:"fr", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
       { id:"josh", name:"Josh", natCode:"gb", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true }
     ].map(d => ({
       ...d,
-      // C'est cette ligne qui manquait pour afficher les drapeaux :
-      natImg: `https://flagcdn.com/w80/${d.natCode}.png`
+      natImg: `https://flagcdn.com/w80/${d.natCode}.png` // Added fallback flag gen
     }));
 
     const CIRCUITS_2025 = [
@@ -1699,7 +1695,6 @@
 
     function buildResultsSkeleton(){
       // We need a skeleton that covers all possible driver IDs (Legacy + New)
-      // Safest is to just make a dynamic object or specific IDs.
       // For simplicity, we just return empty object and fill dynamically.
       return {}; 
     }
@@ -1733,7 +1728,7 @@
       // Fix potential missing results for legacy saves
       champ.races.forEach(r => {
         if(!r.results) r.results = {};
-        // Ensure players exist in result object (even if not in grid, just in case)
+        // Ensure players exist in result object
         ["raph","moise","josh"].forEach(pid => {
           if(!r.results[pid]) r.results[pid] = emptyDriverResult();
         });
@@ -1753,7 +1748,6 @@
       
       // Auto-create legacy if empty
       if(!appData.championships.length){
-        // We create a "Saison 1" using the Legacy Grid logic
         const c = {
           id: Date.now(),
           name: "Saison 1 (Ferrari)",
@@ -1793,6 +1787,9 @@
     ============================ */
     function renderPilotsTable(){
       const champ = getActiveChamp();
+      // SECURITY: If champ data is corrupted or null, stop here to avoid crash
+      if (!champ) return;
+
       const grid = getGrid();
       const body = document.getElementById("pilotsBody");
       body.innerHTML = "";
@@ -1852,6 +1849,8 @@
 
     function renderConstructorsTable(){
       const champ = getActiveChamp();
+      if (!champ) return;
+
       const grid = getGrid();
       const body = document.getElementById("constructorsBody");
       body.innerHTML = "";
@@ -1891,10 +1890,10 @@
       });
     }
 
-   function renderCalendarCard(){
+    function renderCalendarCard(){
       const champ = getActiveChamp();
-      const r = champ.races[currentRaceIndex];
-      if(!r) return; // Sécurité ajoutée au cas où
+      const r = champ?.races[currentRaceIndex];
+      if(!r) return;
 
       setGpTheme(r.accent || "#E10600");
 
@@ -1915,29 +1914,25 @@
       // Tags
       const tags = document.getElementById("gpTags");
       tags.innerHTML = "";
-      (r.tags || []).forEach(t => { // Ajout de () pour éviter les erreurs si tags est undefined
+      (r.tags||[]).forEach(t => {
         const div = document.createElement("div");
         div.className = "tag";
         div.textContent = t;
         tags.appendChild(div);
       });
 
-      // Images (Map)
-      const mapImg = document.getElementById("gpMapImg");
-      const mapPlaceholder = document.getElementById("gpMapPlaceholder");
+      // Images
       const mapPath = `assets/circuits/maps/${r.id}.png`;
-
-      mapPlaceholder.style.display = "none";
-      mapImg.style.display = "block";
+      const flagPath = `assets/circuits/flags/${r.countryCode}.png`;
+      const mapImg = document.getElementById("gpMapImg");
+      const ph = document.getElementById("gpMapPlaceholder");
       mapImg.src = mapPath;
-
-      // --- CORRECTION ICI (Drapeau) ---
+      mapImg.style.display="block"; 
+      ph.style.display="none"; 
+      
       const countryImg = document.getElementById("gpCountryImg");
-      // 1. On définit le lien de secours (Internet) AVANT de définir la source
       countryImg.dataset.fallback = `https://flagcdn.com/w160/${r.countryCode}.png`;
-      // 2. On tente de charger l'image locale
       countryImg.src = `assets/circuits/flags/${r.countryCode}.png`;
-      // -------------------------------
 
       // Mini Results for Players
       ["raph","moise","josh"].forEach(pid => {
@@ -1949,28 +1944,8 @@
         // Find player team info in current grid to color badge
         const grid = getGrid();
         const pInfo = grid.find(g => g.id === pid);
-        // const teamName = pInfo ? pInfo.teamName : "??"; // Inutilisé pour l'instant
+        const teamName = pInfo ? pInfo.teamName : "??";
 
-        const html = `
-          <div class="who">
-            <span class="sf-badge">P</span> ${pid}
-            <span style="margin-left:auto; font-weight:900; opacity:0.8;">+${pts}</span>
-          </div>
-          <div class="row"><span class="muted">Qualif</span><span>${qStr}</span></div>
-          <div class="row"><span class="muted">Course</span><span>${rStr}</span></div>
-          <div class="row"><span class="muted">Écart</span><span>${dRes.gapToP1||"—"}</span></div>
-        `;
-        // Sécurité pour ne pas planter si l'ID n'existe pas
-        const targetId = pid === "raph" ? "miniRaph" : (pid==="moise" ? "miniMoise" : "miniJosh");
-        const mini = document.getElementById(targetId);
-        if(mini) mini.innerHTML = html;
-      });
-
-      // Total Ferrari (ou total de l'équipe du joueur si différente, mais ici on garde la logique simple)
-      const ferrariTotal = (r.results?.raph?.pts ?? 0) + (r.results?.moise?.pts ?? 0) + (r.results?.josh?.pts ?? 0);
-      const totalEl = document.getElementById("ferrariGpTotal");
-      if(totalEl) totalEl.textContent = ferrariTotal;
-    }
         const html = `
           <div class="who">
             <span class="sf-badge">P</span> ${pid}
@@ -1981,13 +1956,15 @@
           <div class="row"><span class="muted">Écart</span><span>${dRes.gapToP1||"—"}</span></div>
         `;
         const mini = document.getElementById(pid === "raph" ? "miniRaph" : (pid==="moise" ? "miniMoise" : "miniJosh"));
-        mini.innerHTML = html;
+        if(mini) mini.innerHTML = html;
       });
     }
 
     function openRaceModal(i){
       if(typeof i === "number") currentRaceIndex = i;
       const champ = getActiveChamp();
+      if(!champ) return;
+      
       const r = champ.races[currentRaceIndex];
       const grid = getGrid();
 
@@ -2005,9 +1982,8 @@
         // Update badge color/text based on team
         const pData = grid.find(g => g.id === pid);
         const badge = document.getElementById(pid==="raph"?"badgeRaph":(pid==="moise"?"badgeMoise":"badgeJosh"));
-        if(pData){
+        if(pData && badge){
            badge.textContent = pData.teamAbbr;
-           // Optional: Dynamic colors could be added here
         }
       });
 
@@ -2071,6 +2047,8 @@
     function populateChampionshipSelect(){
       const s = document.getElementById("championshipSelect");
       s.innerHTML = "";
+      if(!appData.championships) return;
+      
       appData.championships.forEach(c => {
         const o = document.createElement("option");
         o.value = c.id; o.textContent = c.name;
@@ -2082,12 +2060,11 @@
     
     function duplicateChampionship(){
       const base = getActiveChamp();
+      if(!base) return;
       const id = Date.now();
-      const copy = JSON.parse(JSON.stringify(base)); // Deep copy
+      const copy = JSON.parse(JSON.stringify(base)); 
       copy.id = id;
       copy.name += " (Copie)";
-      // Reset results? Maybe keep them for full duplicate, or reset for new season. 
-      // User asked for "Duplicate", usually implies full copy or template. Let's do full copy.
       appData.championships.push(copy);
       appData.activeId = id;
       save();
@@ -2097,6 +2074,7 @@
       const s = document.getElementById("gpSelect");
       s.innerHTML = "";
       const c = getActiveChamp();
+      if(!c) return;
       c.races.forEach((r,i) => {
         const o = document.createElement("option");
         o.value = i; o.textContent = `${r.round} • ${r.name}`;
@@ -2108,6 +2086,7 @@
 
     function renderGPSidebar(){
       const c = getActiveChamp();
+      if(!c) return;
       const w = document.getElementById("gpSidebarList");
       w.innerHTML = "";
       c.races.forEach((r,i) => {
@@ -2115,7 +2094,7 @@
         d.className = "gp-side-item" + (i===currentRaceIndex?" active":"");
         d.onclick = () => setCurrentGP(i, {scrollSidebar:false});
         d.innerHTML = `
-          <div class="gp-side-flag"><img src="assets/circuits/flags/${r.countryCode}.png" onerror="this.src='https://flagcdn.com/w80/${r.countryCode}.png'"></div>
+          <div class="gp-side-flag"><img src="assets/circuits/flags/${r.countryCode}.png" onerror="this.src='https://flagcdn.com/w160/${r.countryCode}.png'"></div>
           <div class="gp-side-round">R${r.round}</div>
           <div class="gp-side-name">${r.country}</div>
           <div class="gp-side-dot ${r.done?'done':''}"></div>
@@ -2138,13 +2117,12 @@
       if(opts && opts.scrollSidebar) scrollSidebarToActive();
     }
     function prevGP(){ if(currentRaceIndex>0) setCurrentGP(currentRaceIndex-1, {scrollSidebar:true}); }
-    function nextGP(){ const c=getActiveChamp(); if(currentRaceIndex<c.races.length-1) setCurrentGP(currentRaceIndex+1, {scrollSidebar:true}); }
+    function nextGP(){ const c=getActiveChamp(); if(c && currentRaceIndex<c.races.length-1) setCurrentGP(currentRaceIndex+1, {scrollSidebar:true}); }
 
     function switchTab(id){
       document.querySelectorAll(".section").forEach(e=>e.classList.remove("active"));
       document.querySelectorAll(".nav-item").forEach(e=>e.classList.remove("active"));
       document.getElementById(id).classList.add("active");
-      // Update nav state simply by index matching is brittle, so just simplistic:
       if(id==="pilots") document.querySelectorAll(".nav-item")[0].classList.add("active");
       if(id==="constructors") document.querySelectorAll(".nav-item")[1].classList.add("active");
       if(id==="calendar") document.querySelectorAll(".nav-item")[2].classList.add("active");
