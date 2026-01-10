@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>F1 2025 – Duel Ferrari | Raphaël vs Moïse</title>
+  <title>F1 2025 – Duel Ferrari | Raphaël vs Moïse vs Josh</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 
-  <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-
+  
   <style>
     :root{
       --f1-red:#E10600;
@@ -478,7 +475,7 @@
     }
     .modal-grid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr; /* Modifié pour 3 pilotes */
       gap: 12px;
       margin-top: 12px;
     }
@@ -975,7 +972,7 @@
     .results-panel-body{
       padding: 12px 16px 16px;
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* MODIF: Adaptatif pour 3 items */
       gap: 12px;
       min-width:0;
     }
@@ -1027,6 +1024,7 @@
       .gp-stats2{ grid-template-columns: 1fr; }
       .results-panel-body{ grid-template-columns: 1fr; }
       .other-positions{ grid-template-columns: 1fr; }
+      .modal-grid { grid-template-columns: 1fr; } /* Modale en 1 colonne sur mobile */
 
       .calendar-hub{ grid-template-columns: 1fr; }
       .gp-sidebar{ position:relative; top:auto; max-height:none; }
@@ -1106,8 +1104,8 @@
       }
     }
           /* =========================================
-         Réduction typographie (Pilotes + Écuries)
-         -> à coller TOUT EN BAS du <style>
+          Réduction typographie (Pilotes + Écuries)
+          -> à coller TOUT EN BAS du <style>
       ========================================= */
       
       /* Taille “intelligente” sur toutes tailles d’écran */
@@ -1155,84 +1153,6 @@
           letter-spacing: 0.5px;
         }
       }
-    /* ===========================
-   STATS UI
-=========================== */
-.stats-grid{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 14px;
-}
-.stats-card{
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(0,0,0,0.22);
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  min-width:0;
-}
-.stats-card.full{ grid-column: 1 / -1; }
-
-.stats-card-head{
-  padding: 14px 16px;
-  background: rgba(0,0,0,0.35);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.stats-card-head strong{
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: .95rem;
-}
-.stats-muted{
-  color: var(--muted);
-  font-weight: 800;
-  font-size: .85rem;
-}
-.chart-wrap{
-  padding: 12px 16px 16px;
-  min-width:0;
-}
-.chart-wrap canvas{
-  width: 100% !important;
-  height: 320px !important;
-}
-
-/* Duel layout */
-.duel-grid{
-  display:grid;
-  grid-template-columns: 340px minmax(0,1fr);
-  gap: 12px;
-  padding: 12px 16px 16px;
-}
-.duel-kpis{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  min-width:0;
-}
-.kpi{
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(0,0,0,0.28);
-  padding: 12px;
-}
-.kpi .k{
-  color: var(--muted);
-  font-weight: 900;
-  letter-spacing: .8px;
-  text-transform: uppercase;
-  font-size: .78rem;
-}
-.kpi .v{
-  margin-top: 6px;
-  font-weight: 900;
-  font-size: 1.25rem;
-}
 
 /* ===========================
    FIX chevauchement tables < 700px
@@ -1299,17 +1219,6 @@
   #constructors .points-box{ width: 160px; }
 }
 
-/* Responsive stats */
-@media (max-width: 1100px){
-  .stats-grid{ grid-template-columns: 1fr; }
-  .stats-card.full{ grid-column:auto; }
-  .duel-grid{ grid-template-columns: 1fr; }
-  .chart-wrap canvas{ height: 300px !important; }
-}
-@media (max-width: 520px){
-  .chart-wrap canvas{ height: 260px !important; }
-}
-
   </style>
 </head>
 
@@ -1321,11 +1230,9 @@
       <div class="nav-item active" onclick="switchTab('pilots')">Pilotes</div>
       <div class="nav-item" onclick="switchTab('constructors')">Constructeurs</div>
       <div class="nav-item" onclick="switchTab('calendar')">Calendrier</div>
-      <div class="nav-item" onclick="switchTab('stats')">Stats</div>
       <div class="nav-item" onclick="switchTab('data')">Données</div>
     </div>
 
-    <!-- Salle partagée (FireStore) -->
     <div class="room-pill" title="Même # = mêmes données en temps réel">
       <span class="dot"></span>
       <span>SALLE :</span>
@@ -1354,7 +1261,6 @@
   </div>
 
   <main>
-    <!-- PILOTS -->
     <section id="pilots" class="section active">
       <div class="title-row">
         <div>
@@ -1378,13 +1284,12 @@
       </div>
     </section>
 
-    <!-- CONSTRUCTORS -->
     <section id="constructors" class="section">
       <div class="title-row">
         <div>
           <h2>Classement constructeurs – Points par écurie</h2>
           <div class="subtitle">
-            Total = somme des points de course saisis pour les pilotes de l’écurie (Ferrari = Raphaël + Moïse).
+            Total = somme des points de course saisis pour les pilotes de l’écurie (Ferrari = Raphaël + Moïse + Josh).
           </div>
         </div>
       </div>
@@ -1399,13 +1304,12 @@
       </div>
     </section>
 
-    <!-- CALENDAR -->
     <section id="calendar" class="section">
       <div class="title-row">
         <div>
           <h2>Calendrier – Circuits + saisie résultats</h2>
           <div class="subtitle">
-            Saisie : <b>Raphaël/Moïse</b> (Qualif temps + Qualif position + Course position + Écart P1 + Meilleur temps course) •
+            Saisie : <b>Raphaël/Moïse/Josh</b> (Qualif temps + Qualif position + Course position + Écart P1 + Meilleur temps course) •
             <b>Autres pilotes</b> (Course position uniquement).
           </div>
         </div>
@@ -1500,7 +1404,7 @@
 
             <div class="results-panel">
               <div class="results-panel-head">
-                <strong>Résultats saisis (Raphaël / Moïse)</strong>
+                <strong>Résultats saisis (Raphaël / Moïse / Josh)</strong>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                   <div style="color:var(--muted); font-weight:800;">
                     Points Ferrari : <span style="color:var(--white); font-weight:900;" id="ferrariGpTotal">0</span>
@@ -1511,6 +1415,7 @@
               <div class="results-panel-body">
                 <div class="mini-card" id="miniRaph"></div>
                 <div class="mini-card" id="miniMoise"></div>
+                <div class="mini-card" id="miniJosh"></div>
               </div>
             </div>
 
@@ -1523,110 +1428,7 @@
         </div>
       </div>
     </section>
-    <!-- STATS -->
-    <section id="stats" class="section">
-      <div class="title-row">
-        <div>
-          <h2>Stats – Graphiques</h2>
-          <div class="subtitle">
-            Courbes pilotes / constructeurs, duel Raphaël vs Moïse, delta qualif → course.
-          </div>
-        </div>
-      </div>
     
-      <div class="stats-grid">
-        <!-- Pilotes: points cumulés -->
-        <div class="stats-card full">
-          <div class="stats-card-head">
-            <strong>Points cumulés – Pilotes (Top + Raphaël/Moïse)</strong>
-            <span class="stats-muted">X = GP • Y = points cumulés</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="chartPilotsCumulative"></canvas>
-          </div>
-        </div>
-    
-        <!-- Pilotes: positions en course -->
-        <div class="stats-card">
-          <div class="stats-card-head">
-            <strong>Positions en course – Raphaël / Moïse</strong>
-            <span class="stats-muted">Y inversé (P1 en haut)</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="chartRaphMoisePositions"></canvas>
-          </div>
-        </div>
-    
-        <!-- Radar -->
-        <div class="stats-card">
-          <div class="stats-card-head">
-            <strong>Profil (Radar) – Raphaël vs Moïse</strong>
-            <span class="stats-muted">Scores 0–100</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="chartRadar"></canvas>
-          </div>
-        </div>
-    
-        <!-- Duel -->
-        <div class="stats-card full">
-          <div class="stats-card-head">
-            <strong>Duel Raphaël vs Moïse</strong>
-            <span class="stats-muted">Écart de points par GP (Raphaël − Moïse)</span>
-          </div>
-    
-          <div class="duel-grid">
-            <div class="duel-kpis">
-              <div class="kpi"><div class="k">Total Raphaël</div><div class="v" id="kpiRaphPts">—</div></div>
-              <div class="kpi"><div class="k">Total Moïse</div><div class="v" id="kpiMoisePts">—</div></div>
-              <div class="kpi"><div class="k">Raphaël devant</div><div class="v" id="kpiRaphWins">—</div></div>
-              <div class="kpi"><div class="k">Moïse devant</div><div class="v" id="kpiMoiseWins">—</div></div>
-              <div class="kpi"><div class="k">Égalités</div><div class="v" id="kpiDraws">—</div></div>
-              <div class="kpi"><div class="k">GP comparables</div><div class="v" id="kpiComparable">—</div></div>
-            </div>
-    
-            <div class="chart-wrap">
-              <canvas id="chartDuelDeltaPoints"></canvas>
-            </div>
-          </div>
-        </div>
-    
-        <!-- Delta qualif-course -->
-        <div class="stats-card full">
-          <div class="stats-card-head">
-            <strong>Delta Qualif → Course (CoursePos − QualifPos)</strong>
-            <span class="stats-muted">+ = perd des places • − = gagne des places</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="chartDeltaQualiCourse"></canvas>
-          </div>
-        </div>
-    
-        <!-- Constructeurs: points cumulés -->
-        <div class="stats-card full">
-          <div class="stats-card-head">
-            <strong>Points cumulés – Constructeurs</strong>
-            <span class="stats-muted">Ferrari = Raphaël + Moïse</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="chartTeamsCumulative"></canvas>
-          </div>
-        </div>
-    
-        <!-- Race chart ranks -->
-        <div class="stats-card full">
-          <div class="stats-card-head">
-            <strong>Classement “vivant” – Rang des constructeurs</strong>
-            <span class="stats-muted">Y inversé (rang 1 en haut)</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="chartTeamsRank"></canvas>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DATA -->
     <section id="data" class="section">
       <div class="title-row">
         <div>
@@ -1652,12 +1454,10 @@
     </section>
   </main>
 
-  <footer>Championnat privé F1 2025 – Raphaël & Moïse (Ferrari)</footer>
+  <footer>Championnat privé F1 2025 – Raphaël, Moïse & Josh (Ferrari)</footer>
 
-  <!-- Tooltip -->
   <div id="tooltip" class="tooltip"></div>
 
-  <!-- Modal GP -->
   <div id="raceModal" class="modal" onclick="modalBackdropClose(event)">
     <div class="modal-content">
       <div class="modal-title">
@@ -1671,52 +1471,65 @@
 
       <form onsubmit="saveRace(event)">
         <div class="modal-grid">
+          
           <div class="field">
             <h4><span class="sf-badge">SF</span> Raphaël</h4>
-
             <div class="inline-2">
               <div>
-                <label>Position qualif</label>
+                <label>Pos Qualif</label>
                 <input type="number" id="q_pos_raph" min="1" max="20" placeholder="Ex: 3">
               </div>
               <div>
-                <label>Temps qualif</label>
-                <input type="text" id="q_time_raph" placeholder="Ex: 1:32.456">
+                <label>Tps Qualif</label>
+                <input type="text" id="q_time_raph" placeholder="1:32.456">
               </div>
             </div>
-
-            <label>Position course (arrivée)</label>
+            <label>Pos Course</label>
             <input type="number" id="r_pos_raph" min="1" max="20" placeholder="Ex: 5">
-
-            <label>Écart P1 (format libre)</label>
-            <input type="text" id="gap_raph" placeholder="Ex: +1:15.822">
-
-            <label>Meilleur temps en course</label>
-            <input type="text" id="best_race_raph" placeholder="Ex: 1:31.999">
+            <label>Écart P1</label>
+            <input type="text" id="gap_raph" placeholder="+1:15.822">
+            <label>Best Lap</label>
+            <input type="text" id="best_race_raph" placeholder="1:31.999">
           </div>
 
           <div class="field">
             <h4><span class="sf-badge">SF</span> Moïse</h4>
-
             <div class="inline-2">
               <div>
-                <label>Position qualif</label>
+                <label>Pos Qualif</label>
                 <input type="number" id="q_pos_moise" min="1" max="20" placeholder="Ex: 7">
               </div>
               <div>
-                <label>Temps qualif</label>
-                <input type="text" id="q_time_moise" placeholder="Ex: 1:33.012">
+                <label>Tps Qualif</label>
+                <input type="text" id="q_time_moise" placeholder="1:33.012">
               </div>
             </div>
-
-            <label>Position course (arrivée)</label>
+            <label>Pos Course</label>
             <input type="number" id="r_pos_moise" min="1" max="20" placeholder="Ex: 10">
+            <label>Écart P1</label>
+            <input type="text" id="gap_moise" placeholder="+0:22.100">
+            <label>Best Lap</label>
+            <input type="text" id="best_race_moise" placeholder="1:32.120">
+          </div>
 
-            <label>Écart P1 (format libre)</label>
-            <input type="text" id="gap_moise" placeholder="Ex: +0:22.100">
-
-            <label>Meilleur temps en course</label>
-            <input type="text" id="best_race_moise" placeholder="Ex: 1:32.120">
+          <div class="field">
+            <h4><span class="sf-badge">SF</span> Josh</h4>
+            <div class="inline-2">
+              <div>
+                <label>Pos Qualif</label>
+                <input type="number" id="q_pos_josh" min="1" max="20" placeholder="Ex: 4">
+              </div>
+              <div>
+                <label>Tps Qualif</label>
+                <input type="text" id="q_time_josh" placeholder="1:32.555">
+              </div>
+            </div>
+            <label>Pos Course</label>
+            <input type="number" id="r_pos_josh" min="1" max="20" placeholder="Ex: 6">
+            <label>Écart P1</label>
+            <input type="text" id="gap_josh" placeholder="+0:10.500">
+            <label>Best Lap</label>
+            <input type="text" id="best_race_josh" placeholder="1:32.000">
           </div>
 
           <div class="field full">
@@ -1775,7 +1588,7 @@
     /* ===========================
        STORAGE
     ============================ */
-    const STORAGE_KEY = "f1_duel_tracker_grid_v3";
+    const STORAGE_KEY = "f1_duel_tracker_grid_v4"; // Version bump for 3 drivers structure
     const POINTS = [25,18,15,12,10,8,6,4,2,1];
 
     /* ===========================
@@ -1811,13 +1624,15 @@
     /* ===========================
        Grille 20 pilotes
     ============================ */
+    // MODIF: JOSH AJOUTÉ
     const GRID_DRIVERS = [
       { id:"verstappen", name:"Max Verstappen", natCode:"nl", natImg:"https://flagcdn.com/w80/nl.png", teamKey:"redbull", teamName:"Red Bull", teamAbbr:"RBR" },
       { id:"norris", name:"Lando Norris", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
       { id:"raph", name:"Raphaël", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
+      { id:"moise", name:"Moïse", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
+      { id:"josh", name:"Josh", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true }, // Nouveau
       { id:"russell", name:"George Russell", natCode:"gb", natImg:"https://flagcdn.com/w80/gb.png", teamKey:"mercedes", teamName:"Mercedes", teamAbbr:"MER" },
       { id:"piastri", name:"Oscar Piastri", natCode:"au", natImg:"https://flagcdn.com/w80/au.png", teamKey:"mclaren", teamName:"McLaren", teamAbbr:"MCL" },
-      { id:"moise", name:"Moïse", natCode:"fr", natImg:"https://flagcdn.com/w80/fr.png", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
       { id:"alonso", name:"Fernando Alonso", natCode:"es", natImg:"https://flagcdn.com/w80/es.png", teamKey:"aston", teamName:"Aston Martin", teamAbbr:"AST" },
       { id:"hulkenberg", name:"Nico Hülkenberg", natCode:"de", natImg:"https://flagcdn.com/w80/de.png", teamKey:"sauber", teamName:"Sauber", teamAbbr:"SAU" },
       { id:"albon", name:"Alexander Albon", natCode:"th", natImg:"https://flagcdn.com/w80/th.png", teamKey:"williams", teamName:"Williams", teamAbbr:"WIL" },
@@ -1916,39 +1731,13 @@
         const t = templateById.get(r.id) || buildRaceFromCircuit(CIRCUITS_2025[idx] || CIRCUITS_2025[0], idx);
         const out = { ...t, ...r };
 
-        // Migration ancien format
-        if(out.results && (out.results.raph || out.results.moise) && (out.results.raph.pos !== undefined || out.results.moise.pos !== undefined)){
-          const fresh = buildResultsSkeleton();
-
-          const oldR = out.results.raph || {};
-          const oldM = out.results.moise || {};
-
-          const rPosOld = Number.isFinite(parseInt(oldR.pos,10)) ? parseInt(oldR.pos,10) : null;
-          const mPosOld = Number.isFinite(parseInt(oldM.pos,10)) ? parseInt(oldM.pos,10) : null;
-
-          fresh.raph.racePos = rPosOld;
-          fresh.raph.qualTime = (oldR.qualTime || "");
-          fresh.raph.gapToP1 = (oldR.gapToP1 || "");
-          fresh.raph.bestRaceTime = (oldR.bestRaceTime || oldR.bestLap || "");
-          fresh.raph.pts = computePointsFromPos(fresh.raph.racePos);
-
-          fresh.moise.racePos = mPosOld;
-          fresh.moise.qualTime = (oldM.qualTime || "");
-          fresh.moise.gapToP1 = (oldM.gapToP1 || "");
-          fresh.moise.bestRaceTime = (oldM.bestRaceTime || oldM.bestLap || "");
-          fresh.moise.pts = computePointsFromPos(fresh.moise.racePos);
-
-          out.results = fresh;
-          out.done = !!(fresh.raph.racePos || fresh.moise.racePos);
-          return out;
-        }
-
-        // Nouveau format : normalisation
+        // Nouveau format : normalisation pour tous les pilotes (dont Josh)
         const skeleton = buildResultsSkeleton();
         if(!out.results || typeof out.results !== "object") out.results = {};
 
         Object.keys(skeleton).forEach(id => {
           out.results[id] = { ...emptyDriverResult(), ...(out.results[id] || {}) };
+          // Recalcul points au cas où barème change ou bug
           out.results[id].pts = computePointsFromPos(out.results[id].racePos);
         });
 
@@ -2307,7 +2096,7 @@
               <div class="pilot-name" style="text-transform:uppercase; letter-spacing:1px;">${t.teamName}</div>
               <div class="pilot-meta">
                 ${t.teamKey === "ferrari"
-                  ? `<span class="sf-badge">SF</span><span style="font-weight:800;">Raphaël + Moïse</span>`
+                  ? `<span class="sf-badge">SF</span><span style="font-weight:800;">Raphaël + Moïse + Josh</span>`
                   : `<span style="opacity:.8;">•</span><span style="font-weight:800;">Constructeurs</span>`
                 }
               </div>
@@ -2502,7 +2291,8 @@
 
       renderMiniResults(r);
 
-      const ferrariTotal = (r.results?.raph?.pts ?? 0) + (r.results?.moise?.pts ?? 0);
+      // MODIF: Total Ferrari inclut Josh
+      const ferrariTotal = (r.results?.raph?.pts ?? 0) + (r.results?.moise?.pts ?? 0) + (r.results?.josh?.pts ?? 0);
       document.getElementById("ferrariGpTotal").textContent = ferrariTotal;
     }
 
@@ -2533,6 +2323,7 @@
 
       document.getElementById("miniRaph").innerHTML = mk("Raphaël", r.results?.raph);
       document.getElementById("miniMoise").innerHTML = mk("Moïse", r.results?.moise);
+      document.getElementById("miniJosh").innerHTML = mk("Josh", r.results?.josh);
     }
 
     /* ===========================
@@ -2547,24 +2338,34 @@
 
       const rr = r.results?.raph || emptyDriverResult();
       const rm = r.results?.moise || emptyDriverResult();
+      const rj = r.results?.josh || emptyDriverResult(); // MODIF: Josh added
 
+      // Raph
       document.getElementById("q_pos_raph").value = rr.qualPos ?? "";
       document.getElementById("q_time_raph").value = rr.qualTime ?? "";
       document.getElementById("r_pos_raph").value = rr.racePos ?? "";
       document.getElementById("gap_raph").value = rr.gapToP1 ?? "";
       document.getElementById("best_race_raph").value = rr.bestRaceTime ?? "";
 
+      // Moise
       document.getElementById("q_pos_moise").value = rm.qualPos ?? "";
       document.getElementById("q_time_moise").value = rm.qualTime ?? "";
       document.getElementById("r_pos_moise").value = rm.racePos ?? "";
       document.getElementById("gap_moise").value = rm.gapToP1 ?? "";
       document.getElementById("best_race_moise").value = rm.bestRaceTime ?? "";
 
+      // Josh (MODIF)
+      document.getElementById("q_pos_josh").value = rj.qualPos ?? "";
+      document.getElementById("q_time_josh").value = rj.qualTime ?? "";
+      document.getElementById("r_pos_josh").value = rj.racePos ?? "";
+      document.getElementById("gap_josh").value = rj.gapToP1 ?? "";
+      document.getElementById("best_race_josh").value = rj.bestRaceTime ?? "";
+
       const wrap = document.getElementById("otherPositionsWrap");
       wrap.innerHTML = "";
 
       GRID_DRIVERS
-        .filter(d => d.id !== "raph" && d.id !== "moise")
+        .filter(d => !d.isFerrariPlayer) // Exclure les joueurs Ferrari
         .forEach(d => {
           const res = r.results?.[d.id] || emptyDriverResult();
           const row = document.createElement("div");
@@ -2616,6 +2417,16 @@
       r.results.moise.gapToP1 = (document.getElementById("gap_moise").value || "").trim();
       r.results.moise.bestRaceTime = (document.getElementById("best_race_moise").value || "").trim();
       r.results.moise.pts = computePointsFromPos(r.results.moise.racePos);
+
+      // Josh (MODIF)
+      const qpj = parseInt(document.getElementById("q_pos_josh").value, 10);
+      const rpj = parseInt(document.getElementById("r_pos_josh").value, 10);
+      r.results.josh.qualPos = Number.isFinite(qpj) ? qpj : null;
+      r.results.josh.qualTime = (document.getElementById("q_time_josh").value || "").trim();
+      r.results.josh.racePos = Number.isFinite(rpj) ? rpj : null;
+      r.results.josh.gapToP1 = (document.getElementById("gap_josh").value || "").trim();
+      r.results.josh.bestRaceTime = (document.getElementById("best_race_josh").value || "").trim();
+      r.results.josh.pts = computePointsFromPos(r.results.josh.racePos);
 
       // Autres pilotes : position course uniquement
       document.querySelectorAll("#otherPositionsWrap input[data-driver]").forEach(inp => {
@@ -2673,8 +2484,6 @@
       if(id === "constructors") nav[1].classList.add("active");
       if(id === "calendar") nav[2].classList.add("active");
       if(id === "data") nav[3].classList.add("active");
-      if(id === "stats") nav[4].classList.add("active");
-
     }
 
     /* ===========================
@@ -2687,7 +2496,6 @@
       renderConstructorsTable();
       renderCalendarCard();
       renderGPSidebar();
-      refreshStats(); // <-- AJOUT
     }
 
     document.getElementById("orderSelect").addEventListener("change", () => {
@@ -2708,463 +2516,6 @@
       if(e.key === "ArrowLeft"){ e.preventDefault(); prevGP(); }
       if(e.key === "ArrowRight"){ e.preventDefault(); nextGP(); }
     });
-            /* ===========================
-         STATS / CHARTS (Chart.js)
-      =========================== */
-      const charts = {
-        pilotsCum: null,
-        raphMoisePos: null,
-        radar: null,
-        duelDeltaPts: null,
-        deltaQualiCourse: null,
-        teamsCum: null,
-        teamsRank: null
-      };
-      
-      function destroyChart(ch){
-        if(ch && typeof ch.destroy === "function") ch.destroy();
-      }
-      
-      function roundLabels(champ){
-        if(!champ?.races?.length) return [];
-        return champ.races.map(r => `R${String(r.round).padStart(2,"0")}`);
-      }
-      
-      function getDoneRacePoints(r, driverId){
-        const pts = r?.results?.[driverId]?.pts;
-        return Number.isFinite(pts) ? pts : 0;
-      }
-      
-      function getRacePos(r, driverId){
-        const pos = r?.results?.[driverId]?.racePos;
-        const p = parseInt(pos, 10);
-        return Number.isFinite(p) ? p : null;
-      }
-      
-      function getQualiPos(r, driverId){
-        const pos = r?.results?.[driverId]?.qualPos;
-        const p = parseInt(pos, 10);
-        return Number.isFinite(p) ? p : null;
-      }
-      
-      function teamsList(){
-        const by = new Map();
-        GRID_DRIVERS.forEach(d => {
-          if(!by.has(d.teamKey)){
-            by.set(d.teamKey, { teamKey:d.teamKey, teamName:d.teamName, teamAbbr:d.teamAbbr });
-          }
-        });
-        return Array.from(by.values());
-      }
-      
-      function teamPointsForRace(r, teamKey){
-        let sum = 0;
-        GRID_DRIVERS.forEach(d => {
-          if(d.teamKey !== teamKey) return;
-          sum += (r?.results?.[d.id]?.pts ?? 0);
-        });
-        return sum;
-      }
-      
-      function topDriversForCum(champ, topN=5){
-        const totals = GRID_DRIVERS.map(d => ({ id:d.id, name:d.name, total: seasonPoints(d.id, champ) }));
-        totals.sort((a,b)=>b.total-a.total);
-      
-        const must = new Set(["raph","moise"]);
-        const out = [];
-      
-        // Top N
-        totals.slice(0, topN).forEach(x => out.push(x.id));
-        // + toujours raph/moise
-        must.forEach(id => { if(!out.includes(id)) out.push(id); });
-      
-        // + garder l'ordre : d'abord topN (déjà), puis raph/moise si ajouté
-        return out;
-      }
-      
-      function buildCumulativeSeries(champ, driverId){
-        let cum = 0;
-        const data = champ.races.map(r => {
-          cum += getDoneRacePoints(r, driverId);
-          return cum;
-        });
-        return data;
-      }
-      
-      function buildPositionsSeries(champ, driverId){
-        return champ.races.map(r => getRacePos(r, driverId));
-      }
-      
-      function stddev(arr){
-        const v = arr.filter(x => Number.isFinite(x));
-        if(v.length <= 1) return 0;
-        const mean = v.reduce((a,b)=>a+b,0)/v.length;
-        const variance = v.reduce((s,x)=>s+Math.pow(x-mean,2),0)/(v.length-1);
-        return Math.sqrt(variance);
-      }
-      
-      function driverRadarStats(champ, driverId){
-        const races = champ.races;
-      
-        const pts = races.map(r => (r?.results?.[driverId]?.pts ?? 0));
-        const totalPts = pts.reduce((a,b)=>a+(Number.isFinite(b)?b:0),0);
-      
-        const positions = races.map(r => getRacePos(r, driverId)).filter(x => Number.isFinite(x));
-        const n = positions.length;
-      
-        const avgPts = races.length ? (totalPts / races.length) : 0;
-      
-        const bestPos = n ? Math.min(...positions) : null;
-        const top10 = positions.filter(p => p <= 10).length;
-        const podiums = positions.filter(p => p <= 3).length;
-      
-        // Scores 0-100
-        const avgPtsScore = Math.max(0, Math.min(100, (avgPts/25)*100));
-        const peakScore = bestPos ? Math.max(0, Math.min(100, ((21-bestPos)/20)*100)) : 0;
-      
-        const sd = stddev(positions);          // plus petit = mieux
-        const regularityScore = Math.max(0, Math.min(100, 100 - (sd/6)*100)); // 6 ≈ “mauvais” => 0
-      
-        const top10Score = n ? (top10/n)*100 : 0;
-        const podiumScore = n ? (podiums/n)*100 : 0;
-      
-        return {
-          totalPts,
-          nComparable: n,
-          avgPtsScore, peakScore, regularityScore, top10Score, podiumScore
-        };
-      }
-      
-      function duelStats(champ){
-        let rWins = 0, mWins = 0, draws = 0, comparable = 0;
-        champ.races.forEach(r => {
-          const rp = getRacePos(r, "raph");
-          const mp = getRacePos(r, "moise");
-          if(!rp || !mp) return;
-          comparable++;
-          if(rp < mp) rWins++;
-          else if(mp < rp) mWins++;
-          else draws++;
-        });
-      
-        return {
-          rPts: seasonPoints("raph", champ),
-          mPts: seasonPoints("moise", champ),
-          rWins, mWins, draws, comparable
-        };
-      }
-      
-      function setDuelKpis(champ){
-        const s = duelStats(champ);
-        const byId = (id) => document.getElementById(id);
-      
-        if(byId("kpiRaphPts")) byId("kpiRaphPts").textContent = s.rPts;
-        if(byId("kpiMoisePts")) byId("kpiMoisePts").textContent = s.mPts;
-        if(byId("kpiRaphWins")) byId("kpiRaphWins").textContent = s.rWins;
-        if(byId("kpiMoiseWins")) byId("kpiMoiseWins").textContent = s.mWins;
-        if(byId("kpiDraws")) byId("kpiDraws").textContent = s.draws;
-        if(byId("kpiComparable")) byId("kpiComparable").textContent = s.comparable;
-      }
-      
-      function buildDuelDeltaPoints(champ){
-        // Raphaël − Moïse, par round
-        return champ.races.map(r => {
-          const rp = r?.results?.raph?.pts ?? 0;
-          const mp = r?.results?.moise?.pts ?? 0;
-          return (rp - mp);
-        });
-      }
-      
-      function buildDeltaQualiCourse(champ, driverId){
-        return champ.races.map(r => {
-          const q = getQualiPos(r, driverId);
-          const p = getRacePos(r, driverId);
-          if(!q || !p) return null;
-          return p - q; // + = perd des places
-        });
-      }
-      
-      function buildTeamsCumulative(champ, teamKey){
-        let cum = 0;
-        return champ.races.map(r => {
-          cum += teamPointsForRace(r, teamKey);
-          return cum;
-        });
-      }
-      
-      function buildTeamsRankSeries(champ){
-        const teams = teamsList();
-        const teamKeys = teams.map(t => t.teamKey);
-      
-        // cum points step by step
-        const cumByTeam = new Map(teamKeys.map(k => [k, 0]));
-        const rankSeries = new Map(teamKeys.map(k => [k, []]));
-      
-        champ.races.forEach((r) => {
-          teamKeys.forEach(k => {
-            cumByTeam.set(k, (cumByTeam.get(k) || 0) + teamPointsForRace(r, k));
-          });
-      
-          const sorted = teamKeys
-            .map(k => ({ k, pts: cumByTeam.get(k) || 0 }))
-            .sort((a,b)=> (b.pts - a.pts) || (a.k.localeCompare(b.k)));
-      
-          const rankOf = new Map();
-          sorted.forEach((x,i)=> rankOf.set(x.k, i+1));
-      
-          teamKeys.forEach(k => rankSeries.get(k).push(rankOf.get(k)));
-        });
-      
-        return { teams, rankSeries };
-      }
-      
-      function chartOptionsBase(){
-        return {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: "top" }
-          },
-          interaction: { mode: "index", intersect: false }
-        };
-      }
-      
-      function refreshStats(){
-        const champ = getActiveChamp();
-        if(!champ) return;
-        const labels = roundLabels(champ);
-      
-        // 1) Pilotes cumulés
-        {
-          const ids = topDriversForCum(champ, 5);
-          const datasets = ids.map(id => {
-            const d = GRID_DRIVERS.find(x=>x.id===id);
-            return {
-              label: d ? d.name : id,
-              data: buildCumulativeSeries(champ, id),
-              tension: 0.25
-            };
-          });
-      
-          const ctx = document.getElementById("chartPilotsCumulative");
-          if(ctx){
-            if(!charts.pilotsCum){
-              charts.pilotsCum = new Chart(ctx, {
-                type: "line",
-                data: { labels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: {
-                    y: { beginAtZero: true }
-                  }
-                }
-              });
-            } else {
-              charts.pilotsCum.data.labels = labels;
-              charts.pilotsCum.data.datasets = datasets;
-              charts.pilotsCum.update();
-            }
-          }
-        }
-      
-        // 3) Positions en course (Raph/Moïse) Y inversé
-        {
-          const datasets = [
-            { label: "Raphaël", data: buildPositionsSeries(champ, "raph"), tension: 0.25 },
-            { label: "Moïse", data: buildPositionsSeries(champ, "moise"), tension: 0.25 }
-          ];
-      
-          const ctx = document.getElementById("chartRaphMoisePositions");
-          if(ctx){
-            if(!charts.raphMoisePos){
-              charts.raphMoisePos = new Chart(ctx, {
-                type: "line",
-                data: { labels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: {
-                    y: {
-                      reverse: true,
-                      suggestedMin: 1,
-                      suggestedMax: 20,
-                      ticks: { stepSize: 1 }
-                    }
-                  }
-                }
-              });
-            } else {
-              charts.raphMoisePos.data.labels = labels;
-              charts.raphMoisePos.data.datasets = datasets;
-              charts.raphMoisePos.update();
-            }
-          }
-        }
-      
-        // 4) Radar Raphaël vs Moïse
-        {
-          const rr = driverRadarStats(champ, "raph");
-          const rm = driverRadarStats(champ, "moise");
-      
-          const radarLabels = ["Points moyens", "Pic perf", "Régularité", "% Top10", "% Podiums"];
-          const datasets = [
-            {
-              label: "Raphaël",
-              data: [rr.avgPtsScore, rr.peakScore, rr.regularityScore, rr.top10Score, rr.podiumScore]
-            },
-            {
-              label: "Moïse",
-              data: [rm.avgPtsScore, rm.peakScore, rm.regularityScore, rm.top10Score, rm.podiumScore]
-            }
-          ];
-      
-          const ctx = document.getElementById("chartRadar");
-          if(ctx){
-            if(!charts.radar){
-              charts.radar = new Chart(ctx, {
-                type: "radar",
-                data: { labels: radarLabels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: {
-                    r: {
-                      min: 0,
-                      max: 100,
-                      ticks: { stepSize: 20 }
-                    }
-                  }
-                }
-              });
-            } else {
-              charts.radar.data.labels = radarLabels;
-              charts.radar.data.datasets = datasets;
-              charts.radar.update();
-            }
-          }
-        }
-      
-        // 6) Duel + barres delta points
-        {
-          setDuelKpis(champ);
-      
-          const datasets = [{
-            label: "Raphaël − Moïse (pts)",
-            data: buildDuelDeltaPoints(champ)
-          }];
-      
-          const ctx = document.getElementById("chartDuelDeltaPoints");
-          if(ctx){
-            if(!charts.duelDeltaPts){
-              charts.duelDeltaPts = new Chart(ctx, {
-                type: "bar",
-                data: { labels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: { y: { beginAtZero: true } }
-                }
-              });
-            } else {
-              charts.duelDeltaPts.data.labels = labels;
-              charts.duelDeltaPts.data.datasets = datasets;
-              charts.duelDeltaPts.update();
-            }
-          }
-        }
-      
-        // 11) Delta qualif -> course
-        {
-          const datasets = [
-            { label: "Raphaël", data: buildDeltaQualiCourse(champ, "raph") },
-            { label: "Moïse", data: buildDeltaQualiCourse(champ, "moise") }
-          ];
-      
-          const ctx = document.getElementById("chartDeltaQualiCourse");
-          if(ctx){
-            if(!charts.deltaQualiCourse){
-              charts.deltaQualiCourse = new Chart(ctx, {
-                type: "bar",
-                data: { labels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: { y: { beginAtZero: true } }
-                }
-              });
-            } else {
-              charts.deltaQualiCourse.data.labels = labels;
-              charts.deltaQualiCourse.data.datasets = datasets;
-              charts.deltaQualiCourse.update();
-            }
-          }
-        }
-      
-        // 7) Constructeurs cumulés
-        {
-          const teams = teamsList();
-          // Ordonne par total final (dernier cum)
-          const totals = teams.map(t => {
-            const serie = buildTeamsCumulative(champ, t.teamKey);
-            return { t, serie, total: serie[serie.length-1] ?? 0 };
-          }).sort((a,b)=>b.total-a.total);
-      
-          const datasets = totals.map(x => ({
-            label: x.t.teamName,
-            data: x.serie,
-            tension: 0.25
-          }));
-      
-          const ctx = document.getElementById("chartTeamsCumulative");
-          if(ctx){
-            if(!charts.teamsCum){
-              charts.teamsCum = new Chart(ctx, {
-                type: "line",
-                data: { labels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: { y: { beginAtZero: true } }
-                }
-              });
-            } else {
-              charts.teamsCum.data.labels = labels;
-              charts.teamsCum.data.datasets = datasets;
-              charts.teamsCum.update();
-            }
-          }
-        }
-      
-        // 9) Race chart rang constructeurs (Y inversé)
-        {
-          const { teams, rankSeries } = buildTeamsRankSeries(champ);
-          const datasets = teams.map(t => ({
-            label: t.teamName,
-            data: rankSeries.get(t.teamKey) || [],
-            tension: 0.25
-          }));
-      
-          const ctx = document.getElementById("chartTeamsRank");
-          if(ctx){
-            if(!charts.teamsRank){
-              charts.teamsRank = new Chart(ctx, {
-                type: "line",
-                data: { labels, datasets },
-                options: {
-                  ...chartOptionsBase(),
-                  scales: {
-                    y: {
-                      reverse: true,
-                      suggestedMin: 1,
-                      suggestedMax: teams.length,
-                      ticks: { stepSize: 1 }
-                    }
-                  }
-                }
-              });
-            } else {
-              charts.teamsRank.data.labels = labels;
-              charts.teamsRank.data.datasets = datasets;
-              charts.teamsRank.update();
-            }
-          }
-        }
-      }
 
     /* ===========================
        Init
