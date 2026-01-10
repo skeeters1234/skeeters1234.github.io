@@ -1530,7 +1530,11 @@
       { id:"raph", name:"Raphaël", natCode:"fr", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
       { id:"moise", name:"Moïse", natCode:"fr", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true },
       { id:"josh", name:"Josh", natCode:"gb", teamKey:"ferrari", teamName:"Ferrari", teamAbbr:"FER", isFerrariPlayer:true }
-    ];
+    ].map(d => ({
+      ...d,
+      // C'est cette ligne qui manquait pour afficher les drapeaux :
+      natImg: `https://flagcdn.com/w80/${d.natCode}.png`
+    }));
 
     const CIRCUITS_2025 = [
       { id:"melbourne", name:"Melbourne", country:"Australie", countryCode:"au", city:"Melbourne", dates:"14–16 mars", laps:58, turns:16, lengthKm:"5.3", drs:"2", tags:["Rapide"], accent:"#2D7DFF" },
